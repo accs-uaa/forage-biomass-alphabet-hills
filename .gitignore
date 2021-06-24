@@ -1,0 +1,78 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.pyc
+
+# Logs #
+######################
+*.log
+*.xml
+*.iml
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.db
+
+# Cache Folders #
+#################
+.idea
+.ipynb_checkpoints
+.Rhistory
+.Rdata
+.Rapp.history
+/*_cache/
+/cache/
+*.utf8.md
+*.knit.md
+
+# Session Data files #
+######################
+.RData
+
+# Package build files #
+#########################################
+*-Ex.R
+/*.tar.gz
+/*.Rcheck/
+vignettes/*.html
+vignettes/*.pdf
+
+# RStudio files #
+#################
+.Rproj.user/
+*.Rproj/
+*.Rproj
+
+# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
+.httr-oauth
+
+# Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
+rsconnect/
+
+# Ignore large shapefiles - cannot be stored in GitHub because of file size
+*.CPG
+*.dbf
+*.prj
+*.sbn
+*.sbx
+*.shp
+*.xml
+*.shx
+
+# Ignore data, output, gis, and pipeline folders
+/data
+/output
+/pipeline
+/gis
