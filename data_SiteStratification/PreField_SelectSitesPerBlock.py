@@ -30,7 +30,7 @@ study_area = os.path.join(data_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
 # Define sampling blocks
 block_1_1 = os.path.join(work_geodatabase, 'Block_1_1')
 block_1_2 = os.path.join(work_geodatabase, 'Block_1_2')
-block_1_3 = os.path.join(work_geodatabase, 'Block_1_2')
+block_1_3 = os.path.join(work_geodatabase, 'Block_1_3')
 block_2_1 = os.path.join(work_geodatabase, 'Block_2_1')
 block_2_2 = os.path.join(work_geodatabase, 'Block_2_2')
 block_3_1 = os.path.join(work_geodatabase, 'Block_3_1')
