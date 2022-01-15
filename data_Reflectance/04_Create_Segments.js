@@ -10,8 +10,8 @@ Description: "Image clusters from simple non-iterative clustering" produces imag
 // 1. SETUP ANALYSIS
 
 // Import assets
-var segmentation_image = ee.Image('projects/accs-geospatial-processing/assets/chenega_imagery');
-var area_feature = ee.FeatureCollection('projects/accs-geospatial-processing/assets/chenega_modelarea');
+var segmentation_image = ee.Image('projects/accs-geospatial-processing/assets/alphabet_imagery');
+var area_feature = ee.FeatureCollection('projects/accs-geospatial-processing/assets/alphabet_studyarea');
 
 // Add image asset to map
 var rgbVis = {
@@ -20,7 +20,7 @@ var rgbVis = {
   bands: ['b3', 'b2', 'b1']
 };
 Map.addLayer(segmentation_image, rgbVis, 'Segmentation Composite');
-Map.centerObject(area_feature);
+//Map.centerObject(area_feature);
 
 // Add study area to map
 var empty = ee.Image().byte();
@@ -81,16 +81,20 @@ print(segmentation_image)
 // Select subset of the composite for clustering
 var image = segmentation_image.select('b1', 'b2', 'b3', 'b4', 'EVI2', 'NDVI', 'NDWI')
 
+// Prepare convoluted image
+var kernel = ee.Kernel.gaussian(3);
+var convoluted_image = segmentation_image.convolve(kernel);
+
 // Set seed grid
 var seeds = ee.Algorithms.Image.Segmentation.seedGrid(12);
 
 // Execute Simple Non-Iterative Clustering
 var segments = ee.Algorithms.Image.Segmentation.SNIC({
-  image: segmentation_image,
+  image: convoluted_image,
   size: 2,
   compactness: 0,
   connectivity: 4,
-  neighborhoodSize: 64,
+  neighborhoodSize: 512,
   seeds: seeds
 }).reproject({
   crs: 'EPSG:3338',
@@ -101,13 +105,14 @@ var segments = ee.Algorithms.Image.Segmentation.SNIC({
 var clusters = segments.select('clusters')
 
 // Add RGB composite and clusters to the map.
+Map.addLayer(convoluted_image, rgbVis, 'Convoluted Composite');
 Map.addLayer(clusters.randomVisualizer(), {}, 'clusters')
 
 // Export clusters to Google Drive.
 Export.image.toDrive({
   image: clusters,
-  description: 'Chenega_Segments_Initial',
-  folder: 'chenega_clusters',
+  description: 'Alphabet_Segments_Initial',
+  folder: 'alphabethills_segments',
   scale: 2,
   region: area_feature,
   maxPixels: 1e12

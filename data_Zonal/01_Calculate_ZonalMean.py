@@ -23,6 +23,7 @@ topography_folder = os.path.join(project_folder, 'Data_Input/topography/integer'
 sent1_folder = os.path.join(project_folder, 'Data_Input/imagery/sentinel-1/processed')
 sent2_folder = os.path.join(project_folder, 'Data_Input/imagery/sentinel-2/processed')
 composite_folder = os.path.join(project_folder, 'Data_Input/imagery/composite/processed')
+vegetation_folder = os.path.join(project_folder, 'Data_Input/vegetation/foliar_cover')
 output_folder = os.path.join(project_folder, 'Data_Input/zonal')
 
 # Define work geodatabase

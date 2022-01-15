@@ -2,7 +2,7 @@
 
 *Author*: Timm Nawrocki, Alaska Center for Conservation Science
 
-*Last Updated*: 2022-01-04
+*Last Updated*: 2022-01-14
 
 *Description*: This document contains instructions and commands for moving data between a local machine and a storage bucket on Google Cloud. Cloud storage can be linked to Google Earth Engine (GEE), allowing the ingestion of large datasets into GEE. Data can also be loaded into cloud storage for access by virtual machine processors on Compute Engine. Most of the Google Cloud Compute Engine configuration can be accomplished using the browser interface, which is how configuration steps are explained in this document. If preferred, all of the configuration steps can also be scripted using the Google Cloud SDK. Users should download and install the [Google Cloud SDK](https://cloud.google.com/sdk/) regardless because it is necessary for batch file uploads and downloads.
 
@@ -41,7 +41,7 @@ gsutil cp -r gs://beringia/example/* ~/example/
 We upload an image composite for segmentation:
 
 ```
-gsutil cp -r N:/ACCS_Work/Projects/VegetationEcology/EPA_Chenega/Data/Data_Input/imagery/maxar/composite/Chenega_MaxarComposite_AKALB.tif gs://chenega-wetlands/gee-assets/
+gsutil cp -r N:/ACCS_Work/Projects/WildlifeEcology/Moose_AlphabetHills/Data/Data_Input/imagery/composite/Alphabet_Composite_AKALB.tif gs://moose-alphabethills/gee-assets/
 ```
 
 Once the data have been uploaded to the Compute storage bucket, they can be ingested in GEE.
@@ -64,7 +64,7 @@ earthengine authenticate
 The Python client provides a local endpoint for working with data hosted in Google Cloud. To move raster data in a Google Cloud storage bucket into an Earth Engine image asset, the following command in the terminal initiates the task. Tasks can take several hours to complete. To track the status of a task, navigate to the [Earth Engine Task Manager](https://code.earthengine.google.com/tasks).
 
 ```
-earthengine upload image --asset_id=projects/accs-geospatial-processing/assets/chenega_imagery gs://chenega-wetlands/gee-assets/Chenega_MaxarComposite_AKALB.tif
+earthengine upload image --asset_id=projects/accs-geospatial-processing/assets/alphabet_imagery gs://moose-alphabethills/gee-assets/Alphabet_Composite_AKALB.tif
 ```
 
 Once the tasks complete, the user should be able to import the asset into scripts in Google Earth Engine. Google provides detailed documentation of the upload commands for the [Earth Engine API](https://developers.google.com/earth-engine/guides/command_line#upload).

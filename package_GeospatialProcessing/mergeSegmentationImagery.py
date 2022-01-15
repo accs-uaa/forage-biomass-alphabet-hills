@@ -55,7 +55,10 @@ def merge_segmentation_imagery(**kwargs):
 
     # Determine input raster value type
     value_number = arcpy.management.GetRasterProperties(input_rasters[1], "VALUETYPE").getOutput(0)
-    no_data_value = arcpy.Describe(input_rasters[1] + '/Band_1').noDataValue
+    if band_count > 1:
+        no_data_value = arcpy.Describe(input_rasters[1] + '/Band_1').noDataValue
+    else:
+        no_data_value = arcpy.Describe(input_rasters[1]).noDataValue
     value_dictionary = {
         0: '1_BIT',
         1: '2_BIT',

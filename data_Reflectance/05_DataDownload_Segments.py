@@ -19,14 +19,14 @@ import pickle
 import time
 
 # Define target Google Drive folder
-google_folder = '1ZpeNBEF1A9-_vsBH2MMozjBU6W60lSc6'
+google_folder = '1-D8tUNjTzHKMRldw13Cgq4MloirmhOS6'
 
 # Set root directory
 drive = 'N:/'
 root_folder = 'ACCS_Work'
 
 # Set data folder
-data_folder = os.path.join(drive, root_folder, 'Projects/WildlifeEcology/Moose_AlphabetHills/Data/Data_Input/imagery/segments')
+data_folder = os.path.join(drive, root_folder, 'Projects/WildlifeEcology/Moose_AlphabetHills/Data/Data_Input/imagery/segments/unprocessed')
 credentials_folder = os.path.join(drive, root_folder, 'Administrative/Credentials')
 
 # Change working directory to credentials folder
