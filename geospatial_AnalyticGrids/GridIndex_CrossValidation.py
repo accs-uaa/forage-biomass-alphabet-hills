@@ -29,13 +29,13 @@ alphabet_feature = os.path.join(work_geodatabase, 'AlphabetHills_StudyArea')
 alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
 
 # Define output grid datasets
-validation_grid = os.path.join(work_geodatabase, 'Alphabet_GridIndex_Validation_5km')
+validation_grid = os.path.join(work_geodatabase, 'Alphabet_GridIndex_Validation_10km')
 validation_raster = os.path.join(project_folder, 'Data_Input/validation/Alphabet_ValidationGroups.tif')
 
 #### GENERATE VALIDATION GRID INDEX
 
 # Create key word arguments for the validation grid index
-validation_kwargs = {'distance': '5 Kilometers',
+validation_kwargs = {'distance': '10 Kilometers',
                      'grid_field': 'grid_validation',
                      'work_geodatabase': work_geodatabase,
                      'input_array': [alphabet_feature],

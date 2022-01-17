@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Calculate zonal means
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-01-16
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Calculate zonal means" calculates zonal means of input datasets to segments defined in a raster.
 # ---------------------------------------------------------------------------
@@ -57,11 +57,18 @@ for raster in sent2_rasters:
     raster_path = os.path.join(sent2_folder, raster)
     input_rasters.append(raster_path)
 
-# Create list of Maxar rasters
+# Create list of composite rasters
 arcpy.env.workspace = composite_folder
 composite_rasters = arcpy.ListRasters('*', 'TIF')
 for raster in composite_rasters:
     raster_path = os.path.join(composite_folder, raster)
+    input_rasters.append(raster_path)
+
+# Create list of vegetation rasters
+arcpy.env.workspace = vegetation_folder
+vegetation_rasters = arcpy.ListRasters('*', 'TIF')
+for raster in vegetation_rasters:
+    raster_path = os.path.join(vegetation_folder, raster)
     input_rasters.append(raster_path)
 
 # Set workspace to default

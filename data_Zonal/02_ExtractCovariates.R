@@ -11,12 +11,6 @@
 drive = 'N:'
 root_folder = 'ACCS_Work'
 
-# Define data folder
-data_folder = paste(drive,
-                    root_folder,
-                    'Data',
-                    sep ='/')
-
 # Define input folders
 project_folder = paste(drive,
                        root_folder,
