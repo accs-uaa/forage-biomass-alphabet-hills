@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Generate flowlines
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-16
+# Last Updated: 2022-01-17
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Generate flowlines" is a function that calculates flowlines from a float elevation raster.
 # ---------------------------------------------------------------------------
@@ -15,7 +15,7 @@ def generate_flowlines(**kwargs):
             'fill_value' -- a value in the vertical units of the elevation raster to set as the fill limit
             'work_geodatabase' -- a geodatabase to store temporary results
             'input_array' -- an array containing the area feature class (must be first), the float elevation raster (must be second), and an optional mask raster (if present, must be last)
-            'output_array' -- an array containing the elevation fill raster, the river feature class, and the stream feature class
+            'output_array' -- an array containing the the river feature class and the stream feature class
     Returned Value: Returns a set filled elevation raster and a set of flowline feature classes on disk
     Preconditions: requires an input elevation raster that can be created through other scripts in this repository
     """
@@ -27,6 +27,7 @@ def generate_flowlines(**kwargs):
     from arcpy.sa import Fill
     from arcpy.sa import FlowAccumulation
     from arcpy.sa import FlowDirection
+    from arcpy.sa import Raster
     from arcpy.sa import StreamOrder
     import datetime
     import os
@@ -38,14 +39,13 @@ def generate_flowlines(**kwargs):
     work_geodatabase = kwargs['work_geodatabase']
     area_feature = kwargs['input_array'][0]
     elevation_raster = kwargs['input_array'][1]
-    fill_output = kwargs['output_array'][0]
     river_feature = kwargs['output_array'][1]
     stream_feature = kwargs['output_array'][2]
 
     # Define intermediate dataset
-    hydrography_folder = os.path.split(fill_output)[0]
+    topography_folder = os.path.split(elevation_raster)[0]
     area_buffer = os.path.join(work_geodatabase, 'StudyArea_Buffer_5km')
-    area_raster = os.path.join(hydrography_folder, 'Area_Raster.tif')
+    buffer_raster = os.path.join(topography_folder, 'Buffer_Raster.tif')
 
     # Set overwrite option
     arcpy.env.overwriteOutput = True
@@ -74,7 +74,7 @@ def generate_flowlines(**kwargs):
                                   'PLANAR')
     arcpy.conversion.PolygonToRaster(area_feature,
                                      'OBJECTID',
-                                     area_raster,
+                                     buffer_raster,
                                      'CELL_CENTER',
                                      '',
                                      cell_size,
@@ -90,7 +90,7 @@ def generate_flowlines(**kwargs):
     # Extract elevation to calculation area
     print('\tExtracting elevation raster...')
     iteration_start = time.time()
-    elevation_extract = ExtractByMask(elevation_raster, area_raster)
+    elevation_extract = ExtractByMask(Raster(elevation_raster), buffer_raster)
     # End timing
     iteration_end = time.time()
     iteration_elapsed = int(iteration_end - iteration_start)
@@ -104,20 +104,6 @@ def generate_flowlines(**kwargs):
     print('\tFilling elevation raster...')
     iteration_start = time.time()
     fill_raster = Fill(elevation_extract, fill_value)
-    arcpy.management.CopyRaster(fill_raster,
-                                fill_output,
-                                '',
-                                '',
-                                '-2147483648',
-                                'NONE',
-                                'NONE',
-                                '32_BIT_FLOAT',
-                                'NONE',
-                                'NONE',
-                                'TIFF',
-                                'NONE',
-                                'CURRENT_SLICE',
-                                'NO_TRANSPOSE')
     # End timing
     iteration_end = time.time()
     iteration_elapsed = int(iteration_end - iteration_start)
@@ -218,8 +204,8 @@ def generate_flowlines(**kwargs):
                                       0,
                                       'SIMPLIFY')
     # Delete intermediate datasets
-    if arcpy.Exists(area_raster) == 1:
-        arcpy.management.Delete(area_raster)
+    if arcpy.Exists(buffer_raster) == 1:
+        arcpy.management.Delete(buffer_raster)
     if arcpy.Exists(area_buffer) == 1:
         arcpy.management.Delete(area_buffer)
     # End timing
