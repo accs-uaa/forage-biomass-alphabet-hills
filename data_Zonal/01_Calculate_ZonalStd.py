@@ -26,8 +26,8 @@ output_folder = os.path.join(project_folder, 'Data_Input/zonal')
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define input datasets
-alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
-zone_raster = os.path.join(project_folder, 'Data_Input/imagery/segments/Alphabet_Segments_Final.tif')
+alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_TestArea.tif')
+zone_raster = os.path.join(project_folder, 'Data_Input/imagery/segments/processed/Alphabet_Segments_Test.tif')
 
 # Create empty raster list
 input_rasters = []

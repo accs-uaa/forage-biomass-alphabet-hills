@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Extract covariates to points
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-01-20
 # Usage: Must be executed in R 4.0.0+.
 # Description: "Extract covariates to points" extracts data from rasters to points.
 # ---------------------------------------------------------------------------
@@ -20,7 +20,7 @@ zonal_folder = paste(project_folder,
                      'Data_Input/zonal',
                      sep = '/')
 grid_folder = paste(project_folder,
-                    'Data_Input/validation',
+                    'Data_Input/validation/test',
                     sep = '/')
 
 # Define output folders
@@ -34,7 +34,7 @@ work_geodatabase = paste(project_folder,
                          sep = '/')
 
 # Define input datasets
-point_feature = 'Alphabet_Segments_Point_Classify'
+point_feature = 'Alphabet_Segments_Test'
 
 # Define output datasets
 output_csv = paste(output_folder,
@@ -54,7 +54,6 @@ predictors_grid = list.files(grid_folder, pattern = 'tif$', full.names = TRUE)
 predictors_all = c(predictors_zonal,
                    predictors_grid)
 print(paste('Number of predictor rasters: ', length(predictors_all), sep = ''))
-print(predictors_all) # Should be 92
 
 # Generate a stack of all covariate rasters
 print('Creating raster stack...')
@@ -84,20 +83,22 @@ point_extracted = point_extracted %>%
                 surface_area = SurfaceArea,
                 surface_relief = SurfaceRelief,
                 wetness = Wetness,
-                maxr_01_blue = Chenega_Maxar_01_Blue,
-                maxr_01_blue_std = Chenega_Maxar_01_Blue_STD,
-                maxr_02_green = Chenega_Maxar_02_Green,
-                maxr_02_green_std = Chenega_Maxar_02_Green_STD,
-                maxr_03_red = Chenega_Maxar_03_Red,
-                maxr_03_red_std = Chenega_Maxar_03_Red_STD,
-                maxr_04_nearir = Chenega_Maxar_04_NearIR,
-                maxr_04_nearir_std = Chenega_Maxar_04_NearIR_STD,
-                maxr_evi2 = Chenega_Maxar_EVI2,
-                maxr_evi2_std = Chenega_Maxar_EVI2_STD,
-                maxr_ndvi = Chenega_Maxar_NDVI,
-                maxr_ndvi_std = Chenega_Maxar_NDVI_STD,
-                maxr_ndwi = Chenega_Maxar_NDWI,
-                maxr_ndwi_std = Chenega_Maxar_NDWI_STD,
+                river_position = River_Position,
+                stream_position = Stream_Position,
+                comp_01_blue = Alphabet_Comp_01_Blue,
+                comp_01_blue_std = Alphabet_Comp_01_Blue_STD,
+                comp_02_green = Alphabet_Comp_02_Green,
+                comp_02_green_std = Alphabet_Comp_02_Green_STD,
+                comp_03_red = Alphabet_Comp_03_Red,
+                comp_03_red_std = Alphabet_Comp_03_Red_STD,
+                comp_04_nearir = Alphabet_Comp_04_NearIR,
+                comp_04_nearir_std = Alphabet_Comp_04_NearIR_STD,
+                comp_evi2 = Alphabet_Comp_EVI2,
+                comp_evi2_std = Alphabet_Comp_EVI2_STD,
+                comp_ndvi = Alphabet_Comp_NDVI,
+                comp_ndvi_std = Alphabet_Comp_NDVI_STD,
+                comp_ndwi = Alphabet_Comp_NDWI,
+                comp_ndwi_std = Alphabet_Comp_NDWI_STD,
                 vh = Sent1_vh,
                 vv = Sent1_vv,
                 s2_06_02_blue = Sent2_06_2_blue,
@@ -164,24 +165,34 @@ point_extracted = point_extracted %>%
                 s2_09_ndsi = Sent2_09_ndsi,
                 s2_09_ndvi = Sent2_09_ndvi,
                 s2_09_ndwi = Sent2_09_ndwi,
-                cv_group = Chenega_ValidationGroups)
+                veg_alnus = alnus,
+                veg_betshr = betshr,
+                veg_bettre = bettre,
+                veg_dectre = dectre,
+                veg_dryas = dryas,
+                ved_empnig = empnig,
+                veg_erivag = erivag,
+                veg_picgla = picgla,
+                veg_picmar = picmar,
+                veg_rhoshr = rhoshr,
+                veg_salshr = salshr,
+                veg_sphagn = sphagn,
+                veg_vaculi = vaculi,
+                veg_vacvit = vacvit,
+                veg_wetsed = wetsed,
+                cv_group = Alphabet_ValidationTest)
 
 # Convert class names to class values
 point_final = point_extracted %>%
-  mutate(class_value = case_when(manual == 'marine deepwater' ~ 1,
-                                 manual == 'marine shallow' ~ 2,
-                                 manual == 'freshwater' ~ 3,
-                                 manual == 'tidal wetland' ~ 4,
-                                 manual == 'coastal herbaceous' ~ 5,
-                                 manual == 'coastal barren' ~ 6,
-                                 manual == 'anthropogenic' ~ 7,
-                                 manual == 'alpine barren' ~ 8,
-                                 manual == 'alpine herbaceous' ~ 9,
-                                 manual == 'subalpine shrub' ~ 10,
-                                 manual == 'coniferous forest' ~ 11,
-                                 manual == 'ericaceous low-dwarf shrub' ~ 12,
-                                 manual == 'sedge peatland' ~ 13,
-                                 manual == 'woody wetland' ~ 14,
+  mutate(class_value = case_when(manual == 'freshwater' ~ 1,
+                                 manual == 'floating aquatic' ~ 2,
+                                 manual == 'riparian/lacustrine wetland' ~ 3,
+                                 manual == 'drainage track' ~ 4,
+                                 manual == 'forest-woodland' ~ 5,
+                                 manual == 'burned' ~ 6,
+                                 manual == 'montane shrub' ~ 7,
+                                 manual == 'montane dwarf shrub' ~ 8,
+                                 manual == 'montane barren' ~ 9,
                                  TRUE ~ -999))
 # Export data as a csv
 write.csv(point_final, file = output_csv, fileEncoding = 'UTF-8')

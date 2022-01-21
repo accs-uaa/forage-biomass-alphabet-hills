@@ -20,6 +20,7 @@ root_folder = 'ACCS_Work'
 # Define folder structure
 project_folder = os.path.join(drive, root_folder, 'Projects/WildlifeEcology/Moose_AlphabetHills/Data')
 topography_folder = os.path.join(project_folder, 'Data_Input/topography/integer')
+hydrography_folder = os.path.join(project_folder, 'Data_Input/hydrography')
 sent1_folder = os.path.join(project_folder, 'Data_Input/imagery/sentinel-1/processed')
 sent2_folder = os.path.join(project_folder, 'Data_Input/imagery/sentinel-2/processed')
 composite_folder = os.path.join(project_folder, 'Data_Input/imagery/composite/processed')
@@ -30,8 +31,8 @@ output_folder = os.path.join(project_folder, 'Data_Input/zonal')
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define input datasets
-alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
-zone_raster = os.path.join(project_folder, 'Data_Input/imagery/segments/Alphabet_Segments_Final.tif')
+alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_TestArea.tif')
+zone_raster = os.path.join(project_folder, 'Data_Input/imagery/segments/processed/Alphabet_Segments_Test.tif')
 
 # Create empty raster list
 input_rasters = []
@@ -41,6 +42,13 @@ arcpy.env.workspace = topography_folder
 topography_rasters = arcpy.ListRasters('*', 'TIF')
 for raster in topography_rasters:
     raster_path = os.path.join(topography_folder, raster)
+    input_rasters.append(raster_path)
+
+# Create list of hydrography rasters
+arcpy.env.workspace = hydrography_folder
+hydrography_rasters = arcpy.ListRasters('*', 'TIF')
+for raster in hydrography_rasters:
+    raster_path = os.path.join(hydrography_folder, raster)
     input_rasters.append(raster_path)
 
 # Create list of Sentinel-1 rasters
