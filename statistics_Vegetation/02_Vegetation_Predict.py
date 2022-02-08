@@ -18,7 +18,7 @@ import datetime
 from package_Statistics import multiclass_predict
 
 # Define round
-round_date = 'round_20220105'
+round_date = 'round_20220120'
 
 #### SET UP DIRECTORIES, FILES, AND FIELDS
 
@@ -45,9 +45,10 @@ output_file = os.path.join(data_output, 'predicted_points.csv')
 class_variable = ['class_value']
 predictor_all = ['aspect', 'elevation', 'exposure', 'heat_load', 'position', 'radiation', 'roughness', 'slope',
                  'surface_area', 'surface_relief', 'wetness',
-                 'maxr_01_blue', 'maxr_02_green', 'maxr_03_red', 'maxr_04_nearir', 'maxr_evi2', 'maxr_ndvi', 'maxr_ndwi',
-                 'maxr_01_blue_std', 'maxr_02_green_std', 'maxr_03_red_std', 'maxr_04_nearir_std',
-                 'maxr_evi2_std', 'maxr_ndvi_std', 'maxr_ndwi_std',
+                 'river_position', 'stream_position',
+                 'comp_01_blue', 'comp_02_green', 'comp_03_red', 'comp_04_nearir', 'comp_evi2', 'comp_ndvi', 'comp_ndwi',
+                 'comp_01_blue_std', 'comp_02_green_std', 'comp_03_red_std', 'comp_04_nearir_std',
+                 'comp_evi2_std', 'comp_ndvi_std', 'comp_ndwi_std',
                  'vh', 'vv',
                  's2_06_02_blue', 's2_06_03_green', 's2_06_04_red', 's2_06_05_rededge1', 's2_06_06_rededge2',
                  's2_06_07_rededge3', 's2_06_08_nearir', 's2_06_08a_rededge4', 's2_06_11_shortir1', 's2_06_12_shortir2',

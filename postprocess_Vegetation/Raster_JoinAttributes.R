@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # Prepare raster attribute table
 # Author: Timm Nawrocki, Alaska Center for Conservation Science
-# Last Updated: 2022-01-14
+# Last Updated: 2022-01-20
 # Usage: Script should be executed in R 4.1.0+.
 # Description: "Prepare raster attribute table" creates a csv raster attribute table that can replace the segment raster attribute table after conversion to dbf.
 # ---------------------------------------------------------------------------
@@ -11,7 +11,7 @@ drive = 'N:'
 root_folder = 'ACCS_Work'
 
 # Set round date
-round_date = 'round_20220105'
+round_date = 'round_20220120'
 
 # Define input folders
 project_folder = paste(drive,
@@ -32,12 +32,12 @@ predicted_table = paste(table_folder,
                         'predicted_points.csv',
                         sep = '/')
 raster_table = paste(raster_folder,
-                     'Alphabet_Segments_Final.csv',
+                     'Alphabet_Segments_Test.csv',
                      sep = '/')
 
 # Define output datasets
 output_file = paste(raster_folder,
-                    'Alphabet_Wetlands_Join.csv',
+                    'Alphabet_Vegetation_Join.csv',
                     sep = '/')
 
 # Import libraries

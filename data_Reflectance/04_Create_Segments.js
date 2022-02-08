@@ -83,7 +83,7 @@ var image = segmentation_image.select('b1', 'b2', 'b3', 'b4', 'EVI2', 'NDVI', 'N
 
 // Prepare convoluted image
 var kernel = ee.Kernel.gaussian(3);
-var convoluted_image = segmentation_image.convolve(kernel);
+var convoluted_image = image.convolve(kernel);
 
 // Set seed grid
 var seeds = ee.Algorithms.Image.Segmentation.seedGrid(12);
