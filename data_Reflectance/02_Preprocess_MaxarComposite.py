@@ -74,5 +74,5 @@ kwargs_composite = {'cell_size': 2,
 
 # Merge rasters
 print('Creating imagery composites...')
-arcpy_geoprocessing(composite_segmentation_imagery, **kwargs_composite)
+arcpy_geoprocessing(composite_segmentation_imagery, **kwargs_composite, check_output=False)
 print('----------')

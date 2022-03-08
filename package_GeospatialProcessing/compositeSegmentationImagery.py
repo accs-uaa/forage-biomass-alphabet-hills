@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Composite segmentation imagery
 # Author: Timm Nawrocki
-# Last Updated: 2021-12-08
+# Last Updated: 2022-02-15
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Composite segmentation imagery" is a function that merges tiles into a composite raster and then reprojects to a target resolution and grid.
 # ---------------------------------------------------------------------------
@@ -86,93 +86,109 @@ def composite_segmentation_imagery(**kwargs):
         iteration_elapsed = int(iteration_end - iteration_start)
         iteration_success_time = datetime.datetime.now()
         # Report success
-        print(f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
+        print(
+            f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
         print('\t----------')
-    # If preliminary raster already exists, report message
+    # If mosaic raster already exists, report message
     else:
         print('\tMosaic raster already exists.')
+        print('\t----------')
 
-    # Enforce correct values
+    # Check if composite raster exists
     print('\tEnforcing correct no data values...')
-    iteration_start = time.time()
-    con_raster = Con(IsNull(Raster(mosaic_raster)), 255, Raster(mosaic_raster))
-    arcpy.management.CopyRaster(con_raster,
-                                composite_raster,
-                                '',
-                                '',
-                                '-2147483648',
-                                'NONE',
-                                'NONE',
-                                '32_BIT_SIGNED',
-                                'NONE',
-                                'NONE',
-                                'TIFF',
-                                'NONE',
-                                'CURRENT_SLICE',
-                                'NO_TRANSPOSE')
-    # End timing
-    iteration_end = time.time()
-    iteration_elapsed = int(iteration_end - iteration_start)
-    iteration_success_time = datetime.datetime.now()
-    # Report success for iteration
-    print(
-        f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
-    print('\t----------')
+    if arcpy.Exists(composite_raster) == 0:
+        # Enforce correct values
+        iteration_start = time.time()
+        con_raster = Con(IsNull(Raster(mosaic_raster)), 255, Raster(mosaic_raster))
+        arcpy.management.CopyRaster(con_raster,
+                                    composite_raster,
+                                    '',
+                                    '',
+                                    '-2147483648',
+                                    'NONE',
+                                    'NONE',
+                                    '32_BIT_SIGNED',
+                                    'NONE',
+                                    'NONE',
+                                    'TIFF',
+                                    'NONE',
+                                    'CURRENT_SLICE',
+                                    'NO_TRANSPOSE')
+        # End timing
+        iteration_end = time.time()
+        iteration_elapsed = int(iteration_end - iteration_start)
+        iteration_success_time = datetime.datetime.now()
+        # Report success for iteration
+        print(
+            f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
+        print('\t----------')
+    # If composite raster already exists, report message
+    else:
+        print('\tComposite raster already exists.')
+        print('\t----------')
 
     # Set final snap raster
     arcpy.env.snapRaster = area_raster
 
     # Project raster to output coordinate system
     print(f'\tReprojecting composite raster...')
-    iteration_start = time.time()
-    # Multiply composite raster by conversion factor
-    converted_raster = Raster(composite_raster) * conversion_factor
-    # Reproject raster
-    arcpy.management.ProjectRaster(converted_raster,
-                                   reprojected_raster,
-                                   output_system,
-                                   'BILINEAR',
-                                   cell_size,
-                                   geographic_transformation,
-                                   '',
-                                   input_system)
-    # End timing
-    iteration_end = time.time()
-    iteration_elapsed = int(iteration_end - iteration_start)
-    iteration_success_time = datetime.datetime.now()
-    # Report success for iteration
-    print(
-        f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
-    print('\t----------')
+    # Check if projected raster already exists
+    if arcpy.Exists(segmentation_raster) == 0:
+        iteration_start = time.time()
+        # Multiply composite raster by conversion factor
+        converted_raster = Raster(composite_raster) * conversion_factor
+        # Reproject raster
+        arcpy.management.ProjectRaster(converted_raster,
+                                       reprojected_raster,
+                                       output_system,
+                                       'BILINEAR',
+                                       cell_size,
+                                       geographic_transformation,
+                                       '',
+                                       input_system)
+        # End timing
+        iteration_end = time.time()
+        iteration_elapsed = int(iteration_end - iteration_start)
+        iteration_success_time = datetime.datetime.now()
+        # Report success for iteration
+        print(
+            f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
+        print('\t----------')
 
-    # Extract reprojected raster to area raster
-    print('\tExtracting imagery composite to study area...')
-    iteration_start = time.time()
-    raster_extract = ExtractByMask(reprojected_raster, area_raster)
-    arcpy.management.CopyRaster(raster_extract,
-                                segmentation_raster,
-                                '',
-                                '',
-                                '-2147483648',
-                                'NONE',
-                                'NONE',
-                                '32_BIT_SIGNED',
-                                'NONE',
-                                'NONE',
-                                'TIFF',
-                                'NONE',
-                                'CURRENT_SLICE',
-                                'NO_TRANSPOSE')
-    # Delete intermediate rasters
-    if arcpy.Exists(reprojected_raster) == 1:
-        arcpy.management.Delete(reprojected_raster)
-    # End timing
-    iteration_end = time.time()
-    iteration_elapsed = int(iteration_end - iteration_start)
-    iteration_success_time = datetime.datetime.now()
-    # Report success
-    print(
-        f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
-    print('\t----------')
-    out_process = f'Successfully created composite and segmentation rasters.'
+        # Extract reprojected raster to area raster
+        print('\tExtracting imagery composite to study area...')
+        iteration_start = time.time()
+        raster_extract = ExtractByMask(reprojected_raster, area_raster)
+        arcpy.management.CopyRaster(raster_extract,
+                                    segmentation_raster,
+                                    '',
+                                    '',
+                                    '-2147483648',
+                                    'NONE',
+                                    'NONE',
+                                    '32_BIT_SIGNED',
+                                    'NONE',
+                                    'NONE',
+                                    'TIFF',
+                                    'NONE',
+                                    'CURRENT_SLICE',
+                                    'NO_TRANSPOSE')
+        # Delete intermediate rasters
+        if arcpy.Exists(reprojected_raster) == 1:
+            arcpy.management.Delete(reprojected_raster)
+        # End timing
+        iteration_end = time.time()
+        iteration_elapsed = int(iteration_end - iteration_start)
+        iteration_success_time = datetime.datetime.now()
+        # Report success
+        print(
+            f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
+        print('\t----------')
+        out_process = f'Successfully created composite and segmentation rasters.'
+    # If composite raster already exists, report message
+    else:
+        print('\tSegmentation raster already exists.')
+        print('\t----------')
+        out_process = 'Segmentation imagery not produced.'
+    # Return message
     return out_process
