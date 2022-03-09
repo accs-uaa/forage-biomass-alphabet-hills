@@ -37,7 +37,7 @@ input_list = glob.glob(os.path.join(processed_folder, '*.tif'))
 
 # Define global outputs
 out_coor_system = arcpy.SpatialReference(4269)
-all_centroids = os.path.join(work_geodatabase, "aerial_centroids")
+all_centroids = os.path.join(work_geodatabase, "AerialImagery_Centroids")
 
 for i in range(len(input_list)):
 
