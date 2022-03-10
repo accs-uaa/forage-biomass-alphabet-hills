@@ -5,6 +5,7 @@
 # Usage: Code chunks must be executed sequentially in R Studio or R Studio Server installation.
 # Description: "Prepare Covariates from Aerial Imagery Metadata" extracts data in text files and puts them in a dataframe. We'll use the variables in this dataframe to establish a statistical relationship between the original (text file) and geo-referenced (shapefile) centroid coordinates.
 # ---------------------------------------------------------------------------
+
 # Import required libraries
 library(tidyverse)
 
@@ -17,6 +18,7 @@ project_folder <- paste(drive,root_folder,"Projects/WildlifeEcology/Moose_Alphab
 image_folder <- paste(project_folder, 'Data_Input/imagery/aerial', sep = "/")
 image_subfolders <- list.dirs(image_folder)
 metadata_folders <- str_subset(image_subfolders, "METADATA")
+unprocessed_folder <- paste(image_folder, 'unprocessed/Images_RGB', sep = "/")
 
 # Define output dataset
 output_csv = paste(image_folder,
@@ -26,7 +28,12 @@ output_csv = paste(image_folder,
 # List variables of interest in the metadata files
 variables <- c("imageNumber","latitude","longitude","height","track","speed")
 
-# Create empty list in which to store results
+# List image name of all unprocessed images
+# Remove extension from image name
+unprocessed_images <- list.files(unprocessed_folder, pattern="\\.JPG$", full.names=FALSE)
+image_names <- sub("\\.JPG", "", unprocessed_images)
+
+# Create empty dataframe in which to store results
 all_metadata <- data.frame(matrix(nrow = 0, ncol = length(variables)))
 colnames(all_metadata) <- variables
 
@@ -55,6 +62,9 @@ for (m in 1:length(metadata_folders)) {
 
 # Add RowID column to match sequential numbering of files rather than ImageNumber, which starts back at 1 with every folder
 all_metadata <- rowid_to_column(all_metadata)
+
+# Append image name
+all_metadata$fileName <- image_names
 
 # Export as CSV
 write_csv(all_metadata, file = output_csv)
