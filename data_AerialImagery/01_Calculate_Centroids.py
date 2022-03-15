@@ -12,7 +12,7 @@ import os
 import glob
 
 # Set root directory
-drive = 'F:\\'
+drive = 'D:\\'
 root_folder = 'ACCS_Work'
 
 # Set overwrite option
@@ -28,7 +28,7 @@ temp_folder = os.path.join(imagery_folder, 'workspace')
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 arcpy.env.workspace = temp_folder
 
-# Define the initial projection
+# Define projection (NAD 83 / Alaska Albers)
 input_projection = 3338
 initial_projection = arcpy.SpatialReference(input_projection)
 
@@ -36,7 +36,6 @@ initial_projection = arcpy.SpatialReference(input_projection)
 input_list = glob.glob(os.path.join(processed_folder, '*.tif'))
 
 # Define global outputs
-out_coor_system = arcpy.SpatialReference(4269)
 all_centroids = os.path.join(work_geodatabase, "AerialImagery_Centroids")
 
 for i in range(len(input_list)):
@@ -50,7 +49,6 @@ for i in range(len(input_list)):
     output_con = os.path.join(temp_folder, ''.join([file_name, '_con', '.tif']))
     output_polygon = os.path.join(temp_folder, ''.join([file_name, '_poly', '.shp']))
     output_point = os.path.join(temp_folder, ''.join([file_name, '_pt', '.shp']))
-    output_point_project = os.path.join(temp_folder, ''.join([file_name, '_pt', '_proj', '.shp']))
 
     # Convert a single-value raster
     print("Creating single-value raster...")
@@ -65,24 +63,20 @@ for i in range(len(input_list)):
     print("Converting polygon to point...")
     arcpy.FeatureToPoint_management(output_polygon, output_point, "INSIDE")
 
-    # Project to NAD83
-    print("Changing projection...")
-    arcpy.Project_management(output_point, output_point_project, out_coor_system)
-
     # Add coordinate fields
     print("Adding coordinates...")
-    arcpy.AddXY_management(output_point_project)
+    arcpy.AddXY_management(output_point)
 
     # Add file name as a field in the attribute table
-    arcpy.CalculateField_management(output_point_project, field="Image_Name", expression='"' + file_name + '"', field_type="TEXT")
+    arcpy.CalculateField_management(output_point, field="Image_Name", expression='"' + file_name + '"', field_type="TEXT")
 
 # List all centroid files
-input_point_list = glob.glob(os.path.join(temp_folder, '*_pt_proj.shp'))
+input_point_list = glob.glob(os.path.join(temp_folder, '*_pt.shp'))
 
 # Change workspace to write to gdb
 arcpy.env.workspace = work_geodatabase
 
-# Combine all projected centroids into a single shapefile
+# Combine centroids into a single shapefile
 print ("Merging all centroids...")
 arcpy.Merge_management(inputs=input_point_list, output=all_centroids)
 
