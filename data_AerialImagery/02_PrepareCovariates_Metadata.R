@@ -3,7 +3,7 @@
 # Prepare Covariates from Aerial Imagery Metadata
 # Author: Amanda Droghini, Alaska Center for Conservation Science
 # Usage: Code chunks must be executed sequentially in R Studio or R Studio Server installation.
-# Description: "Prepare Covariates from Aerial Imagery Metadata" extracts data in text files and a shapefile, and joins them into a dataframe. We'll use the variables in this dataframe to establish a statistical relationship between the original (text files) and geo-referenced (shapefile) centroid coordinates.
+# Description: "Prepare Covariates from Aerial Imagery Metadata" extracts data in text files and a shapefile, and joins them into a dataframe. Calculates distance between the geo-referenced and original centroids. We'll use the variables in this dataframe to establish a statistical relationship between the original (text files) and geo-referenced (shapefile) centroid coordinates.
 # ---------------------------------------------------------------------------
 
 # Import required libraries
@@ -13,6 +13,9 @@ library(sf)
 # Set root directory
 drive = 'D:'
 root_folder = 'ACCS_Work'
+
+# Set desired number of decimal places for coordinates
+options(digits = 12)
 
 # Define input folders
 project_folder <- paste(drive,root_folder,"Projects/WildlifeEcology/Moose_AlphabetHills/Data", sep = "/")
@@ -27,10 +30,19 @@ work_geodatabase <- paste(drive,root_folder,"Projects/WildlifeEcology/Moose_Alph
 # Define input shapefile
 layer_name <- 'AerialImagery_Centroids'
 
-# Define output dataset
+# Define output dataset and coordinate system
 output_csv = paste(image_folder,
                    'AerialImagery_Metadata.csv',
                    sep = '/')
+
+# Define input coordinates of metadata files (NAD 83)
+# Output coordinates = shapefile coordinates = Alaska Albers
+input_coords <- st_crs("EPSG:4269")
+output_coords <- st_crs("EPSG:3338")
+
+# Define required functions
+# https://en.wikipedia.org/wiki/Euclidean_distance#Two_dimensions
+euclidean_distance <- function(x1, y1, x2, y2) (sqrt((x2-x1)^2+(y2-y1)^2))
 
 # Read in shapefile
 centroids <- st_read(dsn=work_geodatabase,layer=layer_name)
@@ -72,20 +84,42 @@ for (m in 1:length(metadata_folders)) {
   }
 }
 
+# Remove temporary files
+rm(data, data_split,data_wide)
+
 # Add RowID column to match sequential numbering of files rather than ImageNumber, which starts back at 1 with every folder
 all_metadata <- rowid_to_column(all_metadata)
 
 # Append image name
 all_metadata$fileName <- image_names
 
-# Join metadata and shapefile ----
-# Only georeferenced images will have a value for POINT_X and POINT_Y
+# Create spatial object ---- 
+
+# Transform into spatial object
+metadata_spatial <- sf::st_as_sf(all_metadata, 
+                                 coords = c("longitude","latitude"),
+                                 crs = input_coords)
+
+# Project into NAD 83 / Alaska Albers
+metadata_spatial <- st_transform(x = metadata_spatial, 
+                                 crs = output_coords)
+
+# Add coordinates as columns
+all_metadata <- all_metadata %>% 
+  mutate(original_x = st_coordinates(metadata_spatial)[,1],
+         original_y = st_coordinates(metadata_spatial)[,2])
+
+# Join files & calculate distance ----
+# Only georeferenced images will have distance values
 metadata_join <- left_join(x=all_metadata, y=centroids,by = c("fileName" = "Image_Name")) %>% 
   select(-Shape) %>% 
-  rename(georef_latitude = POINT_Y, georef_longitude = POINT_X)
+  rename(georef_x = POINT_X,
+         georef_y = POINT_Y) %>% 
+  mutate(distance_meters = euclidean_distance(original_x,original_y,
+                                              georef_x,georef_y))
 
 # Export as CSV
-write_csv(all_metadata, file = output_csv)
+write_csv(metadata_join, file = output_csv)
 
 # Clean workspace
 rm(list=ls())
