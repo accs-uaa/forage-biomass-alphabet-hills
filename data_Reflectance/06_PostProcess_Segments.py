@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Post-process image segments
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-03-14
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Post-process image segments" converts the segment output from Google Earth Engine to a standard format raster, polygon, and point set.
 # ---------------------------------------------------------------------------
@@ -33,9 +33,9 @@ alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyAr
 
 # Define output datasets
 segments_merge = os.path.join(processed_folder, 'Alphabet_Segments_Merge.tif')
-segments_final = os.path.join(processed_folder, 'Alphabet_Segments_Final.tif')
-segments_polygon = os.path.join(work_geodatabase, 'Alphabet_Segments_Polygon')
-segments_point = os.path.join(work_geodatabase, 'Alphabet_Segments_Point')
+segments_original = os.path.join(processed_folder, 'Alphabet_Segments_Original.tif')
+segments_polygon = os.path.join(work_geodatabase, 'Alphabet_Segments_Original_Polygon')
+segments_point = os.path.join(work_geodatabase, 'Alphabet_Segments_Original_Point')
 
 # List segment tiles
 print('Searching for segment tiles...')
@@ -82,7 +82,7 @@ print('----------')
 kwargs_process = {'cell_size': 2,
                   'work_geodatabase': work_geodatabase,
                   'input_array': [alphabet_raster, segments_merge],
-                  'output_array': [segments_final, segments_polygon, segments_point]
+                  'output_array': [segments_original, segments_polygon, segments_point]
                   }
 
 # Post-process segments
