@@ -86,7 +86,7 @@ def merge_floodplains(**kwargs):
         # Set identifier
         idn = count - 1
         # Convert continuous raster to binary based on threshold
-        convert_raster = Con(positions[idn], 1, 0, f'VALUE < {threshold}')
+        convert_raster = Con(positions[idn], 1, 0, f'VALUE <= {threshold}')
         # Append converted raster to list
         raster_list.append(convert_raster)
         count += 1
@@ -198,7 +198,7 @@ def merge_floodplains(**kwargs):
     arcpy.cartography.SmoothPolygon(remove_layer,
                                     floodplain_feature,
                                     'PAEK',
-                                    50)
+                                    20)
     # Update cell size environment
     cell_size_2m = arcpy.management.GetRasterProperties(area_raster, 'CELLSIZEX', '').getOutput(0)
     arcpy.env.cellSize = int(cell_size_2m)
@@ -227,7 +227,7 @@ def merge_floodplains(**kwargs):
         arcpy.management.Delete(simple_layer)
     if arcpy.Exists(remove_layer) == 1:
         arcpy.management.Delete(remove_layer)
-    if arcpy.Exists(flowline_feature) == 1:
+    if number > 1 and arcpy.Exists(flowline_feature) == 1:
         arcpy.management.Delete(flowline_feature)
     if arcpy.Exists(dissolve_feature) == 1:
         arcpy.management.Delete(dissolve_feature)
@@ -241,5 +241,5 @@ def merge_floodplains(**kwargs):
     print('\t----------')
 
     # Return success message
-    outprocess = 'Successfully calculated floodplains.'
+    outprocess = 'Successfully calculated boundaries.'
     return outprocess

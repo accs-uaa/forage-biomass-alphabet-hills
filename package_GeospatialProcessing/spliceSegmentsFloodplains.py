@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-# Splice image segments to floodplains
+# Splice image segments to floodplains and rivers
 # Author: Timm Nawrocki
-# Last Updated: 2022-03-14
+# Last Updated: 2022-03-15
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
-# Description: "Splice image segments to floodplains" is a function that splits image segments on divisions from a floodplain raster.
+# Description: "Splice image segments to floodplains and rivers" is a function that splits image segments on divisions from a floodplain and river raster.
 # ---------------------------------------------------------------------------
 
 # Define a function to splice image segments and floodplain boundaries.
@@ -32,12 +32,15 @@ def splice_segments_floodplains(**kwargs):
     area_raster = kwargs['input_array'][0]
     segments_original = kwargs['input_array'][1]
     floodplain_raster = kwargs['input_array'][2]
+    river_raster = kwargs['input_array'][3]
     segments_raster = kwargs['output_array'][0]
     segments_final = kwargs['output_array'][1]
     segments_point = kwargs['output_array'][2]
 
     # Define intermediate dataset
     floodplain_feature = os.path.join(work_geodatabase, 'floodplain_polygon')
+    river_feature = os.path.join(work_geodatabase, 'river_polygon')
+    merge_feature = os.path.join(work_geodatabase, 'merge_polygon')
     segments_preliminary = os.path.join(work_geodatabase, 'segments_preliminary')
 
     # Set overwrite option
@@ -75,10 +78,41 @@ def splice_segments_floodplains(**kwargs):
         f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
     print('\t----------')
 
-    # Splice polygons
-    print('\tSplitting image segments using floodplain polygons...')
+    # Convert river raster to polygon
+    print('\tConverting river raster to polygon...')
     iteration_start = time.time()
-    arcpy.analysis.Intersect([segments_original, floodplain_feature],
+    value_raster = Con(IsNull(Raster(river_raster)), 0, Raster(river_raster))
+    arcpy.conversion.RasterToPolygon(value_raster,
+                                     river_feature,
+                                     'NO_SIMPLIFY',
+                                     'VALUE',
+                                     'SINGLE_OUTER_PART')
+    # End timing
+    iteration_end = time.time()
+    iteration_elapsed = int(iteration_end - iteration_start)
+    iteration_success_time = datetime.datetime.now()
+    # Report success
+    print(
+        f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
+    print('\t----------')
+
+    # Merge floodplain and river features
+    print('\tMerging floodplains and rivers...')
+    iteration_start = time.time()
+    arcpy.management.Merge([floodplain_feature, river_feature], merge_feature)
+    # End timing
+    iteration_end = time.time()
+    iteration_elapsed = int(iteration_end - iteration_start)
+    iteration_success_time = datetime.datetime.now()
+    # Report success
+    print(
+        f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
+    print('\t----------')
+
+    # Splice polygons
+    print('\tSplitting image segments using merged polygons...')
+    iteration_start = time.time()
+    arcpy.analysis.Intersect([segments_original, merge_feature],
                              segments_preliminary,
                              'ALL',
                              '',
@@ -103,6 +137,10 @@ def splice_segments_floodplains(**kwargs):
     # Delete intermediate dataset
     if arcpy.Exists(floodplain_feature) == 1:
         arcpy.management.Delete(floodplain_feature)
+    if arcpy.Exists(river_feature) == 1:
+        arcpy.management.Delete(river_feature)
+    if arcpy.Exists(merge_feature) == 1:
+        arcpy.management.Delete(merge_feature)
     if arcpy.Exists(segments_preliminary) == 1:
         arcpy.management.Delete(segments_preliminary)
     # End timing

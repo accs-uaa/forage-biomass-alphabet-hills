@@ -2,12 +2,14 @@
 # ---------------------------------------------------------------------------
 # Refine image segments
 # Author: Timm Nawrocki
-# Last Updated: 2022-03-14
+# Last Updated: 2022-03-15
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
-# Description: "Refine image segments" divides segment polygons using floodplain boundary polygons.
+# Description: "Refine image segments" divides segment polygons using floodplain and river boundary polygons.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append("C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/")
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import splice_segments_floodplains
@@ -28,6 +30,7 @@ work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb'
 alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
 segments_original = os.path.join(work_geodatabase, 'Alphabet_Segments_Original_Polygon')
 floodplain_raster = os.path.join(hydrography_folder, 'Floodplain.tif')
+river_raster = os.path.join(hydrography_folder, 'River.tif')
 
 # Define output datasets
 segments_raster = os.path.join(segments_folder, 'Alphabet_Segments_Final.tif')
@@ -38,11 +41,11 @@ segments_point = os.path.join(work_geodatabase, 'Alphabet_Segments_Final_Point')
 
 # Create key word arguments
 kwargs_refine = {'work_geodatabase': work_geodatabase,
-                 'input_array': [alphabet_raster, segments_original, floodplain_raster],
+                 'input_array': [alphabet_raster, segments_original, floodplain_raster, river_raster],
                  'output_array': [segments_raster, segments_final, segments_point]
                  }
 
-# Post-process segments
-print('Post-processing image segments...')
+# Refine image segments
+print('Refining image segments based on floodplain and river boundaries...')
 arcpy_geoprocessing(splice_segments_floodplains, **kwargs_refine)
 print('----------')
