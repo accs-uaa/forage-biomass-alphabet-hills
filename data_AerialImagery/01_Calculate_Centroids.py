@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------------------
-# Calculate centroids
+# -*- coding: utf-8 -*-
+# Calculate centroid of raster images
 # Author: Amanda Droghini (adroghini@alaska.edu)
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Calculate centroids" calculates the centroid for each geo-referenced raster. Geo-referenced rasters were created by manually centering and scaling aerial images from satellite imagery. The output is a CSV file that lists the file name and XY coordinates of each raster.
