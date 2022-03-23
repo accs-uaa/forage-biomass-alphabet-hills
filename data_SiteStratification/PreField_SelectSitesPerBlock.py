@@ -25,7 +25,7 @@ work_geodatabase = os.path.join(data_folder, 'AlphabetHillsBrowseBiomass.gdb')
 raster_salix = os.path.join(data_folder, 'Data_Input/vegetation/salshr.tif')
 
 # Define study area
-study_area = os.path.join(data_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
+study_area = os.path.join(data_folder, 'Data_Input/Alphabet_StudyArea.tif')
 
 # Define sampling blocks
 block_1_1 = os.path.join(work_geodatabase, 'Block_1_1')

@@ -2,12 +2,14 @@
 # ---------------------------------------------------------------------------
 # Calculate topographic properties
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-03-22
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Calculate topographic properties" calculates integer versions of ten topographic indices for each grid using elevation float rasters.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import calculate_topographic_properties
@@ -25,7 +27,7 @@ output_folder = os.path.join(project_folder, 'Data_Input/topography/integer')
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define input datasets
-alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
+alphabet_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.tif')
 elevation_float = os.path.join(input_folder, 'Elevation.tif')
 
 # Define output datasets

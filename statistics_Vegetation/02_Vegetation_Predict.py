@@ -2,12 +2,14 @@
 # ---------------------------------------------------------------------------
 # Predict vegetation types to points
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-03-22
 # Usage: Must be executed in an Anaconda Python 3.9+ distribution.
 # Description: "Predict vegetation types to points" predicts a random forest model to a set of grid csv files containing extracted covariate values to produce a set of output predictions with mean and standard deviation. The script must be run on a machine that can support 4 cores.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import joblib
 import os
 import pandas as pd

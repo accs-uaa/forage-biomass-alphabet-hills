@@ -2,15 +2,16 @@
 # ---------------------------------------------------------------------------
 # Post-process Sentinel-1 rasters
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-03-22
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Post-process Sentinel-1 rasters" reprojects rasters, converts to integer, and extracts to the study area.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import arcpy
 import datetime
-import fnmatch
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import reproject_extract
@@ -29,7 +30,7 @@ processed_folder = os.path.join(project_folder, 'Data_Input/imagery/sentinel-1/p
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define input datasets
-alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
+alphabet_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.tif')
 
 # List imagery tiles
 print('Searching for imagery tiles...')

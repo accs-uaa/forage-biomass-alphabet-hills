@@ -25,16 +25,14 @@ def calculate_zonal_statistics(**kwargs):
     from arcpy.sa import Raster
     from arcpy.sa import ZonalStatistics
     import datetime
-    import os
     import time
 
     # Parse key word argument inputs
     statistic = kwargs['statistic']
     zone_field = kwargs['zone_field']
     work_geodatabase = kwargs['work_geodatabase']
-    area_raster = kwargs['input_array'][0]
+    zone_raster = kwargs['input_array'][0]
     input_raster = kwargs['input_array'][1]
-    zone_raster = kwargs['input_array'][2]
     output_raster = kwargs['output_array'][0]
 
     # Set overwrite option
@@ -43,19 +41,19 @@ def calculate_zonal_statistics(**kwargs):
     # Specify core usage
     arcpy.env.parallelProcessingFactor = "75%"
 
-    # Set snap raster and extent
-    arcpy.env.snapRaster = area_raster
-    arcpy.env.extent = Raster(area_raster).extent
-
-    # Set output coordinate system
-    arcpy.env.outputCoordinateSystem = Raster(area_raster)
-
-    # Set cell size environment
-    cell_size = arcpy.management.GetRasterProperties(area_raster, 'CELLSIZEX', '').getOutput(0)
-    arcpy.env.cellSize = int(cell_size)
-
     # Set workspace
     arcpy.env.workspace = work_geodatabase
+
+    # Set snap raster and extent
+    arcpy.env.snapRaster = zone_raster
+    arcpy.env.extent = Raster(zone_raster).extent
+
+    # Set output coordinate system
+    arcpy.env.outputCoordinateSystem = Raster(zone_raster)
+
+    # Set cell size environment
+    cell_size = arcpy.management.GetRasterProperties(zone_raster, 'CELLSIZEX', '').getOutput(0)
+    arcpy.env.cellSize = int(cell_size)
 
     # Determine input raster value type
     value_number = arcpy.management.GetRasterProperties(input_raster, "VALUETYPE").getOutput(0)
@@ -74,12 +72,12 @@ def calculate_zonal_statistics(**kwargs):
         10: '64_BIT'
     }
     value_type = value_dictionary.get(int(value_number))
-    print(f'\tOutput data type will be {value_type}.')
-    print(f'\tOutput no data value will be {no_data_value}.')
-    print('\t----------')
+    print(f'\t\tOutput data type will be {value_type}.')
+    print(f'\t\tOutput no data value will be {no_data_value}.')
+    print('\t\t----------')
 
     # Calculate zonal statistics
-    print(f'\tCalculating zonal {statistic.lower()}...')
+    print(f'\t\tCalculating zonal {statistic.lower()}...')
     iteration_start = time.time()
     summary_raster = ZonalStatistics(zone_raster,
                                      zone_field,
@@ -89,6 +87,7 @@ def calculate_zonal_statistics(**kwargs):
                                      'CURRENT_SLICE',
                                      '',
                                      '')
+    # Copy summary raster to output
     arcpy.management.CopyRaster(summary_raster,
                                 output_raster,
                                 '',
@@ -109,9 +108,9 @@ def calculate_zonal_statistics(**kwargs):
     iteration_success_time = datetime.datetime.now()
     # Report success
     print(
-        f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
-    print('\t----------')
+        f'\t\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
+    print('\t\t----------')
 
     # Return success message
-    outprocess = f'Successfully created zonal {statistic.lower()}.'
+    outprocess = f'\tSuccessfully created zonal {statistic.lower()}.'
     return outprocess

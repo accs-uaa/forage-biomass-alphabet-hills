@@ -2,14 +2,14 @@
 # ---------------------------------------------------------------------------
 # Refine image segments
 # Author: Timm Nawrocki
-# Last Updated: 2022-03-15
+# Last Updated: 2022-03-22
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Refine image segments" divides segment polygons using floodplain and river boundary polygons.
 # ---------------------------------------------------------------------------
 
 # Import packages
 import sys
-sys.path.append("C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/")
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import splice_segments_floodplains
@@ -27,7 +27,7 @@ hydrography_folder = os.path.join(project_folder, 'Data_Input/hydrography')
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define input datasets
-alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
+alphabet_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.tif')
 segments_original = os.path.join(work_geodatabase, 'Alphabet_Segments_Original_Polygon')
 floodplain_raster = os.path.join(hydrography_folder, 'Floodplain.tif')
 river_raster = os.path.join(hydrography_folder, 'River.tif')

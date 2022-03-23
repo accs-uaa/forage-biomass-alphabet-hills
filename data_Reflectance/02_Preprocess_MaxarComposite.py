@@ -2,12 +2,14 @@
 # ---------------------------------------------------------------------------
 # Pre-process Maxar composite for segmentation
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-10
+# Last Updated: 2022-03-22
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Pre-process Maxar composite for segmentation" reprojects and resamples multi-band image rasters to prepare for upload to Google Earth Engine for segmentation.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import arcpy
 import datetime
 import os
@@ -28,7 +30,7 @@ composite_folder = os.path.join(project_folder, 'Data_Input/imagery/maxar/compos
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define input datasets
-alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
+alphabet_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.tif')
 
 # Define output datasets
 imagery_composite = os.path.join(composite_folder, 'Alphabet_MaxarComposite_WGS84.tif')

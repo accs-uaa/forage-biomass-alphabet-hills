@@ -2,14 +2,17 @@
 # ---------------------------------------------------------------------------
 # Create cross-validation grid
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-17
+# Last Updated: 2022-03-22
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Create cross-validation grid" creates a validation grid index from a manually-generated study area polygon.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import arcpy
 from package_GeospatialProcessing import arcpy_geoprocessing
+from package_GeospatialProcessing import parse_image_segments
 from package_GeospatialProcessing import create_grid_index
 from package_GeospatialProcessing import convert_validation_grid
 import os
@@ -25,17 +28,19 @@ project_folder = os.path.join(drive, root_folder, 'Projects/WildlifeEcology/Moos
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define input datasets
-alphabet_feature = os.path.join(work_geodatabase, 'AlphabetHills_StudyArea')
-alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
+alphabet_feature = os.path.join(work_geodatabase, 'Alphabet_StudyArea')
+alphabet_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.tif')
+segments_feature = os.path.join(work_geodatabase, 'Alphabet_Segments_Final_Polygon')
 
 # Define output grid datasets
-validation_grid = os.path.join(work_geodatabase, 'Alphabet_GridIndex_Validation_5km')
+validation_grid = os.path.join(work_geodatabase, 'Alphabet_GridIndex_Validation_10km')
 validation_raster = os.path.join(project_folder, 'Data_Input/validation/Alphabet_ValidationGroups.tif')
+grid_folder = os.path.join(project_folder, 'Data_Input/validation/gridded')
 
 #### GENERATE VALIDATION GRID INDEX
 
 # Create key word arguments for the validation grid index
-validation_kwargs = {'distance': '5 Kilometers',
+validation_kwargs = {'distance': '10 Kilometers',
                      'grid_field': 'grid_validation',
                      'work_geodatabase': work_geodatabase,
                      'input_array': [alphabet_feature],
@@ -59,7 +64,7 @@ raster_kwargs = {'work_geodatabase': work_geodatabase,
                  'output_array': [validation_raster]
                  }
 
-# Generate validation group raster for North American Beringia
+# Generate validation group raster
 if arcpy.Exists(validation_raster) == 0:
     print('Converting validation grids to raster for North American Beringia...')
     arcpy_geoprocessing(convert_validation_grid, **raster_kwargs)
@@ -67,3 +72,15 @@ if arcpy.Exists(validation_raster) == 0:
 else:
     print('Validation raster already exists.')
     print('----------')
+
+#### PARSE REFINED IMAGE SEGMENTS FOR VALIDATION GRIDS
+
+parse_kwargs = {'tile_name': 'grid_validation',
+                'work_geodatabase': work_geodatabase,
+                'input_array': [alphabet_raster, validation_grid, segments_feature],
+                'output_folder': grid_folder
+                }
+
+# Create buffered tiles for the major grid
+arcpy_geoprocessing(parse_image_segments, check_output=False, **parse_kwargs)
+print('----------')

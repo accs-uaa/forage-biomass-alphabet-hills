@@ -2,12 +2,14 @@
 # ---------------------------------------------------------------------------
 # Create composite USGS 3DEP 5m
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-03-22
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Create composite USGS 3DEP 5m" combines individual DEM tiles and reprojects to NAD 1983 Alaska Albers.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import merge_elevation_tiles
 import os
@@ -26,7 +28,7 @@ projected_folder = os.path.join(topography_folder, 'tiles_projected')
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define input datasets
-alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
+alphabet_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.tif')
 
 # Define output datasets
 output_raster = os.path.join(topography_folder, 'float/Elevation.tif')

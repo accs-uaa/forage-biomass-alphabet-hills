@@ -2,12 +2,14 @@
 # ---------------------------------------------------------------------------
 # Merge high-resolution imagery composites
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-03-22
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Merge high-resolution imagery composites" combines Maxar and Spot-5 imagery composites with Spot-5 imagery selected by a manually defined mask raster.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import extract_raster
@@ -27,7 +29,7 @@ composite_folder = os.path.join(project_folder, 'Data_Input/imagery/composite')
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define input datasets
-alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
+alphabet_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.tif')
 maxar_mask = os.path.join(project_folder, 'Data_Input/imagery/maxar/maxar_mask.tif')
 maxar_image = os.path.join(maxar_folder, 'Alphabet_MaxarComposite_AKALB.tif')
 spot_image = os.path.join(spot_folder, 'Alphabet_SpotComposite_AKALB.tif')

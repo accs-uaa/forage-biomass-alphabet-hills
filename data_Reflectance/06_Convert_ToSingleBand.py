@@ -2,12 +2,14 @@
 # ---------------------------------------------------------------------------
 # Convert multi-band raster to single-band rasters
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-03-22
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Convert multi-band raster to single-band rasters" converts a multi-band raster to single band rasters.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import parse_raster_band
@@ -25,7 +27,7 @@ processed_folder = os.path.join(project_folder, 'Data_Input/imagery/composite/pr
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define input datasets
-alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
+alphabet_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.tif')
 composite_raster = os.path.join(composite_folder, 'Alphabet_Composite_AKALB.tif')
 
 # Define output rasters

@@ -2,12 +2,14 @@
 # ---------------------------------------------------------------------------
 # Train and test vegetation classifier
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-20
+# Last Updated: 2022-03-22
 # Usage: Must be executed in an Anaconda Python 3.9+ distribution.
 # Description: "Train and test vegetation classifier " trains a random forest model to predict vegetation and land surface types from a set of training points. This script runs the model train and test steps to output a trained classifier file and predicted data set. The train-test classifier is set to use 4 cores. The script must be run on a machine that can support 4 cores.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import os
 import pandas as pd
 from sklearn.model_selection import LeaveOneGroupOut

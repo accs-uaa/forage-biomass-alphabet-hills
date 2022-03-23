@@ -22,7 +22,7 @@ data_folder = os.path.join(drive, root_folder, 'Projects/WildlifeEcology/Moose_A
 work_geodatabase = os.path.join(data_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define lakes feature class
-lakes_feature = os.path.join(work_geodatabase, 'AlphabetHills_Waterbodies')
+lakes_feature = os.path.join(work_geodatabase, 'Alphabet_Waterbodies')
 
 # Define starting units
 lake_1_1 = os.path.join(work_geodatabase, 'Lake_1_1')

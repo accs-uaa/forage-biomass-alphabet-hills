@@ -2,12 +2,14 @@
 # ---------------------------------------------------------------------------
 # Download Image Segments from Drive
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-03-22
 # Usage: Must be executed in a Python 3.8 installation with Google API Python Client and PyDrive installed.
 # Description: "Download Image Segments from Drive" programmatically downloads image segments (may be tiled) from a Google Drive folder. The image segments must first be calculated in Google Earth Engine and exported to the Google Drive folder.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import datetime
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow

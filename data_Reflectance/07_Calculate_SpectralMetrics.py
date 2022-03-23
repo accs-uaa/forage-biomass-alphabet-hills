@@ -2,12 +2,14 @@
 # ---------------------------------------------------------------------------
 # Calculate spectral metrics
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-03-22
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Calculate spectral metrics" calculates enhanced vegetation index-2, normalized difference vegetation index, and normalized difference water index.
 # ---------------------------------------------------------------------------
 
 # Import packages
+import sys
+sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import normalized_metrics
@@ -24,7 +26,7 @@ processed_folder = os.path.join(project_folder, 'Data_Input/imagery/composite/pr
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
 
 # Define input datasets
-alphabet_raster = os.path.join(project_folder, 'Data_Input/AlphabetHills_StudyArea.tif')
+alphabet_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.tif')
 blue_raster = os.path.join(processed_folder, 'Alphabet_Comp_01_Blue.tif')
 green_raster = os.path.join(processed_folder, 'Alphabet_Comp_02_Green.tif')
 red_raster = os.path.join(processed_folder, 'Alphabet_Comp_03_Red.tif')
