@@ -40,8 +40,8 @@ def create_grid_index(**kwargs):
     # Set overwrite option
     arcpy.env.overwriteOutput = True
 
-    # Use two thirds of the possible cores on the machine
-    arcpy.env.parallelProcessingFactor = '66%'
+    # Specify core usage
+    arcpy.env.parallelProcessingFactor = '0'
 
     # Set workspace
     arcpy.env.workspace = work_geodatabase

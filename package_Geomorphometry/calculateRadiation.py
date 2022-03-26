@@ -31,7 +31,7 @@ def calculate_radiation(area_raster, aspect_float, conversion_factor, radiation_
     arcpy.env.overwriteOutput = True
 
     # Specify core usage
-    arcpy.env.parallelProcessingFactor = "75%"
+    arcpy.env.parallelProcessingFactor = '50%'
 
     # Set snap raster and extent
     arcpy.env.snapRaster = area_raster

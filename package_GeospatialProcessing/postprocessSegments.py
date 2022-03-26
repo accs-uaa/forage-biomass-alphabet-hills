@@ -39,8 +39,8 @@ def postprocess_segments(**kwargs):
     # Set overwrite option
     arcpy.env.overwriteOutput = True
 
-    # Use two thirds of cores on processes that can be split.
-    arcpy.env.parallelProcessingFactor = "75%"
+    # Specify core usage
+    arcpy.env.parallelProcessingFactor = '0'
 
     # Set snap raster and extent
     arcpy.env.snapRaster = area_raster
@@ -66,7 +66,7 @@ def postprocess_segments(**kwargs):
                                      segments_final,
                                      'CELL_CENTER',
                                      '',
-                                     2,
+                                     cell_size,
                                      'BUILD'
                                      )
     # Remove intermediate polygons

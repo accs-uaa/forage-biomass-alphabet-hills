@@ -36,7 +36,7 @@ def calculate_heat_load(area_raster, elevation_float, slope_float, aspect_float,
     arcpy.env.overwriteOutput = True
 
     # Specify core usage
-    arcpy.env.parallelProcessingFactor = "75%"
+    arcpy.env.parallelProcessingFactor = '50%'
 
     # Set snap raster and extent
     arcpy.env.snapRaster = area_raster

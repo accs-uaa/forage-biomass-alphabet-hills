@@ -48,11 +48,11 @@ def generate_hydrographic_position(**kwargs):
     # Set overwrite option
     arcpy.env.overwriteOutput = True
 
+    # Specify core usage
+    arcpy.env.parallelProcessingFactor = '0'
+
     # Set workspace
     arcpy.env.workspace = work_geodatabase
-
-    # Specify core usage
-    arcpy.env.parallelProcessingFactor = "25%"
 
     # Set snap raster and extent
     arcpy.env.snapRaster = area_raster

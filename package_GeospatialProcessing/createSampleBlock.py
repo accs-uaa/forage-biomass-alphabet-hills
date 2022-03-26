@@ -40,8 +40,8 @@ def create_sample_block(**kwargs):
     # Set workspace
     arcpy.env.workspace = work_geodatabase
 
-    # Use two thirds of cores on processes that can be split.
-    arcpy.env.parallelProcessingFactor = "50%"
+    # Specify core usage
+    arcpy.env.parallelProcessingFactor = '0'
 
     # Define intermediate datasets
     buffer_feature = os.path.join(work_geodatabase, 'buffer_feature')

@@ -43,8 +43,8 @@ def probabilistic_site_selection(**kwargs):
     # Set workspace
     arcpy.env.workspace = work_geodatabase
 
-    # Use two thirds of cores on processes that can be split.
-    arcpy.env.parallelProcessingFactor = "50%"
+    # Specify core usage
+    arcpy.env.parallelProcessingFactor = '0'
 
     # Set snap raster, extent, and cell size
     arcpy.env.snapRaster = study_area

@@ -51,6 +51,9 @@ def composite_segmentation_imagery(**kwargs):
     # Set overwrite option
     arcpy.env.overwriteOutput = True
 
+    # Specify core usage
+    arcpy.env.parallelProcessingFactor = '0'
+
     # Set initial snap raster
     arcpy.env.snapRaster = input_rasters[1]
 

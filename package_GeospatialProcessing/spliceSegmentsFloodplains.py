@@ -42,6 +42,8 @@ def splice_segments_floodplains(**kwargs):
     river_feature = os.path.join(work_geodatabase, 'river_polygon')
     merge_feature = os.path.join(work_geodatabase, 'merge_polygon')
     segments_preliminary = os.path.join(work_geodatabase, 'segments_preliminary')
+    segments_multi = os.path.join(work_geodatabase, 'segments_multi')
+    preliminary_raster = os.path.join(os.path.split(segments_raster)[0], 'preliminary_raster.tif')
 
     # Set overwrite option
     arcpy.env.overwriteOutput = True
@@ -50,7 +52,7 @@ def splice_segments_floodplains(**kwargs):
     arcpy.env.workspace = work_geodatabase
 
     # Specify core usage
-    arcpy.env.parallelProcessingFactor = "75%"
+    arcpy.env.parallelProcessingFactor = '0'
 
     # Set snap raster and extent
     arcpy.env.snapRaster = area_raster
@@ -119,13 +121,28 @@ def splice_segments_floodplains(**kwargs):
                              'INPUT')
     # Split multi-part features
     print('\tSplitting multi-part features...')
-    arcpy.management.MultipartToSinglepart(segments_preliminary, segments_final)
-    # Convert final segments to point
+    arcpy.management.MultipartToSinglepart(segments_preliminary, segments_multi)
+    # Convert features to preliminary raster
+    arcpy.conversion.PolygonToRaster(segments_multi,
+                                     'OBJECTID',
+                                     preliminary_raster,
+                                     'CELL_CENTER',
+                                     '',
+                                     cell_size,
+                                     'BUILD')
+    # Convert preliminary raster to final polygons
+    arcpy.conversion.RasterToPolygon(preliminary_raster,
+                                     segments_final,
+                                     'NO_SIMPLIFY',
+                                     'VALUE',
+                                     'SINGLE_OUTER_PART',
+                                     '')
+    # Convert final polygons to points
     print('\t\tExporting point representation...')
     arcpy.management.FeatureToPoint(segments_final,
                                     segments_point,
                                     'INSIDE')
-    # Convert final segments to raster
+    # Convert final polygons to final raster
     print('\t\tExporting raster representation...')
     arcpy.conversion.PolygonToRaster(segments_final,
                                      'OBJECTID',
@@ -143,6 +160,10 @@ def splice_segments_floodplains(**kwargs):
         arcpy.management.Delete(merge_feature)
     if arcpy.Exists(segments_preliminary) == 1:
         arcpy.management.Delete(segments_preliminary)
+    if arcpy.Exists(segments_multi) == 1:
+        arcpy.management.Delete(segments_multi)
+    if arcpy.Exists(preliminary_raster) == 1:
+        arcpy.management.Delete(preliminary_raster)
     # End timing
     iteration_end = time.time()
     iteration_elapsed = int(iteration_end - iteration_start)

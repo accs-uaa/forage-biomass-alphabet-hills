@@ -31,7 +31,7 @@ def calculate_slope(area_raster, elevation_float, z_unit, slope_float, slope_int
     arcpy.env.overwriteOutput = True
 
     # Specify core usage
-    arcpy.env.parallelProcessingFactor = "75%"
+    arcpy.env.parallelProcessingFactor = '50%'
 
     # Set snap raster and extent
     arcpy.env.snapRaster = area_raster

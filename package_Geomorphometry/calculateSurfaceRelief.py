@@ -32,7 +32,7 @@ def calculate_surface_relief(area_raster, elevation_float, conversion_factor, re
     arcpy.env.overwriteOutput = True
 
     # Specify core usage
-    arcpy.env.parallelProcessingFactor = "75%"
+    arcpy.env.parallelProcessingFactor = '50%'
 
     # Set snap raster and extent
     arcpy.env.snapRaster = area_raster

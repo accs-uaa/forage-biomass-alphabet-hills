@@ -35,8 +35,8 @@ def convert_validation_grid(**kwargs):
     # Set overwrite option
     arcpy.env.overwriteOutput = True
 
-    # Use two thirds of the possible cores on the machine
-    arcpy.env.parallelProcessingFactor = '66%'
+    # Specify core usage
+    arcpy.env.parallelProcessingFactor = '0'
 
     # Set snap raster and extent
     arcpy.env.snapRaster = area_raster

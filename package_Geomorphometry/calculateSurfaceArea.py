@@ -31,7 +31,7 @@ def calculate_surface_area(area_raster, slope_float, conversion_factor, area_out
     arcpy.env.overwriteOutput = True
 
     # Specify core usage
-    arcpy.env.parallelProcessingFactor = "75%"
+    arcpy.env.parallelProcessingFactor = '50%'
 
     # Set snap raster and extent
     arcpy.env.snapRaster = area_raster

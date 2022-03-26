@@ -38,7 +38,7 @@ def parse_image_segments(**kwargs):
     # Set overwrite option
     arcpy.env.overwriteOutput = True
 
-    # Use two thirds of the possible cores on the machine
+    # Specify core usage
     arcpy.env.parallelProcessingFactor = '0'
 
     # Set workspace
@@ -76,6 +76,11 @@ def parse_image_segments(**kwargs):
             if arcpy.Exists(output_grid) == 0:
                 print(f'\tProcessing grid tile {os.path.split(output_grid)[1]}...')
                 iteration_start = time.time()
+                # Delete feature classes if they exist
+                if arcpy.Exists(output_points) == 1:
+                    arcpy.management.Delete(output_points)
+                if arcpy.Exists(output_polygons) == 1:
+                    arcpy.management.Delete(output_polygons)
                 # Make segment point layer
                 arcpy.management.MakeFeatureLayer(segments_point, point_layer)
                 # Select points by overlap with grid
@@ -85,8 +90,21 @@ def parse_image_segments(**kwargs):
                                                        '',
                                                        'NEW_SELECTION',
                                                        'NOT_INVERT')
-                # Copy selected points to new feature class
+                # Copy selected points to new feature class and remove unnecessary fields
                 arcpy.management.CopyFeatures(point_layer, output_points)
+                point_field_list = arcpy.ListFields(output_points)
+                drop_point_fields = []
+                for field in point_field_list:
+                    if not field.required:
+                        drop_point_fields.append(field.name)
+                arcpy.management.DeleteField(output_points, drop_point_fields)
+                arcpy.management.CalculateField(output_points,
+                                                'segment_id',
+                                                '!OBJECTID!',
+                                                'PYTHON3',
+                                                '',
+                                                'LONG',
+                                                'NO_ENFORCE_DOMAINS')
                 # Make segment polygon layer
                 arcpy.management.MakeFeatureLayer(segments_polygon, polygon_layer)
                 # Select polygons by overlap with points
@@ -96,8 +114,21 @@ def parse_image_segments(**kwargs):
                                                        '',
                                                        'NEW_SELECTION',
                                                        'NOT_INVERT')
-                # Copy selected points to new feature class
+                # Copy selected points to new feature class and remove unnecessary fields
                 arcpy.management.CopyFeatures(polygon_layer, output_polygons)
+                polygon_field_list = arcpy.ListFields(output_polygons)
+                drop_polygon_fields = []
+                for field in polygon_field_list:
+                    if not field.required:
+                        drop_polygon_fields.append(field.name)
+                arcpy.management.DeleteField(output_polygons, drop_polygon_fields)
+                arcpy.management.CalculateField(output_polygons,
+                                                'segment_id',
+                                                '!OBJECTID!',
+                                                'PYTHON3',
+                                                '',
+                                                'LONG',
+                                                'NO_ENFORCE_DOMAINS')
                 # Update extent
                 desc = arcpy.Describe(output_polygons)
                 xmin = desc.extent.XMin

@@ -34,8 +34,8 @@ def compile_spot_multiband(**kwargs):
     # Set overwrite option
     arcpy.env.overwriteOutput = True
 
-    # Use two thirds of cores on processes that can be split.
-    arcpy.env.parallelProcessingFactor = "75%"
+    # Specify core usage
+    arcpy.env.parallelProcessingFactor = '0'
 
     # Set snap raster and extent
     arcpy.env.snapRaster = rgb_raster

@@ -35,6 +35,9 @@ def extract_raster(**kwargs):
     # Set overwrite option
     arcpy.env.overwriteOutput = True
 
+    # Specify core usage
+    arcpy.env.parallelProcessingFactor = '0'
+
     # Set workspace
     arcpy.env.workspace = work_geodatabase
 

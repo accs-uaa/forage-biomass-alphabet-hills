@@ -42,6 +42,9 @@ def reproject_extract(**kwargs):
     # Set overwrite option
     arcpy.env.overwriteOutput = True
 
+    # Specify core usage
+    arcpy.env.parallelProcessingFactor = '0'
+
     # Set snap raster
     arcpy.env.snapRaster = area_raster
 
