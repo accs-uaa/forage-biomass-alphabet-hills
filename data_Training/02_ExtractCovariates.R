@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Extract covariates to points
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-20
+# Last Updated: 2022-03-26
 # Usage: Must be executed in R 4.0.0+.
 # Description: "Extract covariates to points" extracts data from rasters to points.
 # ---------------------------------------------------------------------------
@@ -30,8 +30,15 @@ output_folder = paste(project_folder,
 
 # Define work geodatabase
 work_geodatabase = paste(project_folder,
-                         'AlphabetHillsBrowseBiomass.gdb',
+                         'AlphabetHills_Segments.gdb',
                          sep = '/')
+
+# Define grids
+grid_list = c('A2', 'A3', 'A4', 'A5', 'A6',
+             'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7',
+             'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7',
+             'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7',
+             'E1', 'E2', 'E3', 'E4', 'E5', 'E6')
 
 # Define input datasets
 point_feature = 'Alphabet_Segments_Test'

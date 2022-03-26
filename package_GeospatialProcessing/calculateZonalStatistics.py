@@ -39,7 +39,7 @@ def calculate_zonal_statistics(**kwargs):
     arcpy.env.overwriteOutput = True
 
     # Specify core usage
-    arcpy.env.parallelProcessingFactor = "75%"
+    arcpy.env.parallelProcessingFactor = "0"
 
     # Set workspace
     arcpy.env.workspace = work_geodatabase

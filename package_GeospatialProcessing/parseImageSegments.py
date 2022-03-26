@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Parse image segments
 # Author: Timm Nawrocki
-# Last Updated: 2022-03-22
+# Last Updated: 2022-03-26
 # Usage: Must be executed in an ArcGIS Pro Python 3.6 installation.
 # Description: "Parse image segments" is a function that extracts the image segments that overlap a validation grid.
 # ---------------------------------------------------------------------------
@@ -12,8 +12,8 @@ def parse_image_segments(**kwargs):
     """
     Description: extracts the image segments that overlap a selected grid
     Inputs: 'tile_name' -- a field name in the grid index that stores the tile name
-            'work_geodatabase' -- a geodatabase to store temporary results
-            'input_array' -- an array containing the study area raster, the input grid index, and the input image segments
+            'work_geodatabase' -- a geodatabase to store results
+            'input_array' -- an array containing the study area raster, the input grid index, the input image segment points, and the input image segment polygons
             'output_folder' -- an empty folder to store the parsed image segment rasters
     Returned Value: Returns a raster dataset for each grid in grid index
     Preconditions: grid index must have been generated using create_grid_indices
@@ -31,14 +31,15 @@ def parse_image_segments(**kwargs):
     work_geodatabase = kwargs['work_geodatabase']
     area_raster = kwargs['input_array'][0]
     grid_index = kwargs['input_array'][1]
-    segments_feature = kwargs['input_array'][2]
+    segments_point = kwargs['input_array'][2]
+    segments_polygon = kwargs['input_array'][3]
     output_folder = kwargs['output_folder']
 
     # Set overwrite option
     arcpy.env.overwriteOutput = True
 
     # Use two thirds of the possible cores on the machine
-    arcpy.env.parallelProcessingFactor = '75%'
+    arcpy.env.parallelProcessingFactor = '0'
 
     # Set workspace
     arcpy.env.workspace = work_geodatabase
@@ -59,49 +60,59 @@ def parse_image_segments(**kwargs):
     with arcpy.da.SearchCursor(grid_index, fields) as cursor:
         # Iterate through each feature in the feature class
         for row in cursor:
-            # Define intermediate and output datasets
-            temporary_segments = os.path.join(arcpy.env.workspace, 'Grid_' + row[1] + '_Selected')
+            # Define output datasets
+            output_points = os.path.join(work_geodatabase, 'points_' + row[1])
+            output_polygons = os.path.join(work_geodatabase, 'polygons_' + row[1])
             output_grid = os.path.join(output_folder, row[1] + '.tif')
+
+            # Define layers
+            point_layer = 'point_layer'
+            polygon_layer = 'polygon_layer'
 
             # Set initial extent
             arcpy.env.extent = Raster(area_raster).extent
-
-            # Define segments layer
-            segments_layer = 'segments_layer'
 
             # If tile does not exist, then create tile
             if arcpy.Exists(output_grid) == 0:
                 print(f'\tProcessing grid tile {os.path.split(output_grid)[1]}...')
                 iteration_start = time.time()
-                # Make segments layer
-                arcpy.management.MakeFeatureLayer(segments_feature, segments_layer)
-                # Select segments by overlap with grid
-                arcpy.management.SelectLayerByLocation(segments_layer,
+                # Make segment point layer
+                arcpy.management.MakeFeatureLayer(segments_point, point_layer)
+                # Select points by overlap with grid
+                arcpy.management.SelectLayerByLocation(point_layer,
                                                        'INTERSECT',
                                                        row[0],
                                                        '',
                                                        'NEW_SELECTION',
                                                        'NOT_INVERT')
-                # Copy selected segments to new feature class
-                arcpy.management.CopyFeatures(segments_layer, temporary_segments)
+                # Copy selected points to new feature class
+                arcpy.management.CopyFeatures(point_layer, output_points)
+                # Make segment polygon layer
+                arcpy.management.MakeFeatureLayer(segments_polygon, polygon_layer)
+                # Select polygons by overlap with points
+                arcpy.management.SelectLayerByLocation(polygon_layer,
+                                                       'INTERSECT',
+                                                       output_points,
+                                                       '',
+                                                       'NEW_SELECTION',
+                                                       'NOT_INVERT')
+                # Copy selected points to new feature class
+                arcpy.management.CopyFeatures(polygon_layer, output_polygons)
                 # Update extent
-                desc = arcpy.Describe(temporary_segments)
+                desc = arcpy.Describe(output_polygons)
                 xmin = desc.extent.XMin
                 xmax = desc.extent.XMax
                 ymin = desc.extent.YMin
                 ymax = desc.extent.YMax
                 arcpy.env.extent = arcpy.Extent(xmin, ymin, xmax, ymax)
                 # Copy features to raster
-                arcpy.conversion.PolygonToRaster(temporary_segments,
+                arcpy.conversion.PolygonToRaster(output_polygons,
                                                  'OBJECTID',
                                                  output_grid,
                                                  'CELL_CENTER',
                                                  '',
                                                  cell_size,
                                                  'BUILD')
-                # If temporary feature class exists, then delete it
-                if arcpy.Exists(temporary_segments) == 1:
-                    arcpy.management.Delete(temporary_segments)
                 # End timing
                 iteration_end = time.time()
                 iteration_elapsed = int(iteration_end - iteration_start)
@@ -114,5 +125,5 @@ def parse_image_segments(**kwargs):
                 print('\t----------')
 
     # Return final status
-    out_process = 'Completed creation of grid tiles.'
+    out_process = 'Finished parsing segments to grids.'
     return out_process
