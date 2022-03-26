@@ -202,24 +202,9 @@ for (grid in grid_list) {
                     s2_09_ndmi = Sent2_09_ndmi,
                     s2_09_ndsi = Sent2_09_ndsi,
                     s2_09_ndvi = Sent2_09_ndvi,
-                    s2_09_ndwi = Sent2_09_ndwi,
-                    veg_alnus = alnus,
-                    veg_betshr = betshr,
-                    veg_bettre = bettre,
-                    veg_dectre = dectre,
-                    veg_dryas = dryas,
-                    ved_empnig = empnig,
-                    veg_erivag = erivag,
-                    veg_picgla = picgla,
-                    veg_picmar = picmar,
-                    veg_rhoshr = rhoshr,
-                    veg_salshr = salshr,
-                    veg_sphagn = sphagn,
-                    veg_vaculi = vaculi,
-                    veg_vacvit = vacvit,
-                    veg_wetsed = wetsed)
+                    s2_09_ndwi = Sent2_09_ndwi)
     point_ancillary = point_ancillary %>%
-      dplyr::rename(cv_group = Alphabet_ValidationTest,
+      dplyr::rename(cv_group = Alphabet_ValidationGroups,
                     train_class = Alphabet_Physiography)
     
     # Join ancillary data to covariate data
@@ -227,7 +212,7 @@ for (grid in grid_list) {
       left_join(point_ancillary, by = 'segment_id')
     
     # Export data as a csv
-    write.csv(point_extracted, file = output_data, fileEncoding = 'UTF-8')
+    write.csv(point_extracted, file = output_data, fileEncoding = 'UTF-8', row.names = FALSE)
     print(paste('Extraction iteration ', toString(count), ' out of ', toString(grid_length), ' completed.', sep=''))
     print('----------')
   } else {
