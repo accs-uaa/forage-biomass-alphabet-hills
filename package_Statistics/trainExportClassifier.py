@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-# Train and export classifier
+# Train and export multi-class classifier
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-05
+# Last Updated: 2022-03-27
 # Usage: Must be executed in an Anaconda Python 3.9+ distribution.
-# Description: "Train and export classifier" is a function that trains and exports a classifier and a table of variable importances.
+# Description: "Train and export multi-class classifier" is a function that trains and exports a classifier and a table of variable importance for a multi-class problem.
 # ---------------------------------------------------------------------------
 
 # Create a function to train and export a classification model

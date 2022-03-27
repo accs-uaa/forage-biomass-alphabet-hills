@@ -10,6 +10,7 @@
 # Import packages
 import sys
 sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
+import glob
 import os
 import pandas as pd
 from sklearn.model_selection import LeaveOneGroupOut
@@ -20,7 +21,7 @@ import datetime
 from package_Statistics import multiclass_train_test
 
 # Define round
-round_date = 'round_20220120'
+round_date = 'round_20220327'
 
 #### SET UP DIRECTORIES, FILES, AND FIELDS
 
@@ -32,11 +33,12 @@ root_folder = 'ACCS_Work'
 data_folder = os.path.join(drive,
                            root_folder,
                            'Projects/WildlifeEcology/Moose_AlphabetHills/Data')
-data_input = os.path.join(data_folder, 'Data_Input/training_data')
+data_input = os.path.join(data_folder, 'Data_Input/training/table')
 data_output = os.path.join(data_folder, 'Data_Output/model_results', round_date)
 
-# Define input file
-input_file = os.path.join(data_input, 'AllPoints_ExtractedCovariates.csv')
+# Define input files
+os.chdir(data_input)
+input_files = glob.glob('*.csv')
 
 # Define output data
 output_csv = os.path.join(data_output, 'prediction.csv')
@@ -45,7 +47,7 @@ importance_mdi_csv = os.path.join(data_output, 'importance_classifier_mdi.csv')
 confusion_csv = os.path.join(data_output, 'confusion_matrix.csv')
 
 # Define variable sets
-class_variable = ['class_value']
+class_variable = ['train_class']
 predictor_all = ['aspect', 'elevation', 'exposure', 'heat_load', 'position', 'radiation', 'roughness', 'slope',
                  'surface_area', 'surface_relief', 'wetness',
                  'river_position', 'stream_position',
@@ -66,9 +68,9 @@ predictor_all = ['aspect', 'elevation', 'exposure', 'heat_load', 'position', 'ra
                  's2_09_07_rededge3', 's2_09_08_nearir', 's2_09_08a_rededge4', 's2_09_11_shortir1', 's2_09_12_shortir2',
                  's2_09_evi2', 's2_09_nbr', 's2_09_ndmi', 's2_09_ndsi', 's2_09_ndvi', 's2_09_ndwi']
 cv_groups = ['cv_group']
-retain_variables = ['gridcode', 'POINT_X', 'POINT_Y']
+retain_variables = ['segment_id']
 outer_cv_split_n = ['outer_cv_split_n']
-prediction = ['prediction']
+prediction = ['class_predict']
 output_variables = class_variable + predictor_all + outer_cv_split_n + prediction
 
 # Define random state
@@ -92,8 +94,16 @@ classifier_params = {'n_estimators': 1000,
                      'random_state': rstate}
 
 # Create data frame of input data
-data_all = pd.read_csv(input_file)
-input_data = data_all[data_all[class_variable[0]] > 0].copy()
+input_length = len(input_files)
+input_data = pd.DataFrame(columns=retain_variables + class_variable + cv_groups + predictor_all)
+count = 1
+for file in input_files:
+    print(f'Reading input data {count} of {input_length}...')
+    data = pd.read_csv(file)
+    input_data = input_data.append(data, ignore_index=True, sort=True)
+    input_data = input_data[input_data[class_variable[0]] > 0].copy()
+    count += 1
+print(f'Input data contains {len(input_data)} rows.')
 
 # Define leave one group out cross validation split methods
 outer_cv_splits = LeaveOneGroupOut()
@@ -104,12 +114,14 @@ importances_all = pd.DataFrame(columns=['covariate', 'importance'])
 
 # Conduct model train and test for iteration
 outer_results, trained_classifier, importance_table = multiclass_train_test(classifier_params,
+                                                                            outer_cv_splits,
                                                                             input_data,
                                                                             class_variable,
                                                                             predictor_all,
                                                                             cv_groups,
                                                                             retain_variables,
-                                                                            outer_cv_splits,
+                                                                            outer_cv_split_n,
+                                                                            prediction,
                                                                             rstate,
                                                                             output_classifier)
 
