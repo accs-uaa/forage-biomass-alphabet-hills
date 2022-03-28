@@ -144,6 +144,8 @@ def parse_image_segments(**kwargs):
                                                  '',
                                                  cell_size,
                                                  'BUILD')
+                # Add XY coordinates to points
+                arcpy.management.AddXY(output_points)
                 # End timing
                 iteration_end = time.time()
                 iteration_elapsed = int(iteration_end - iteration_start)

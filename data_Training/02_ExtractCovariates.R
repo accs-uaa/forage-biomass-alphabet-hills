@@ -205,7 +205,8 @@ for (grid in grid_list) {
                     s2_09_ndwi = Sent2_09_ndwi)
     point_ancillary = point_ancillary %>%
       dplyr::rename(cv_group = Alphabet_ValidationGroups,
-                    train_class = Alphabet_Physiography)
+                    train_class = Alphabet_Physiography) %>%
+      dplyr::select(-POINT_X, -POINT_Y)
     
     # Join ancillary data to covariate data
     point_extracted = point_zonal %>%

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-# Train and test vegetation classifier
+# Train and test physiography classifier
 # Author: Timm Nawrocki
-# Last Updated: 2022-03-22
+# Last Updated: 2022-03-27
 # Usage: Must be executed in an Anaconda Python 3.9+ distribution.
-# Description: "Train and test vegetation classifier " trains a random forest model to predict vegetation and land surface types from a set of training points. This script runs the model train and test steps to output a trained classifier file and predicted data set. The train-test classifier is set to use 4 cores. The script must be run on a machine that can support 4 cores.
+# Description: "Train and test physiography classifier " trains a random forest model to predict physiographic types from a set of training points. This script runs the model train and test steps to output a trained classifier file and predicted data set. The train-test classifier is set to use 4 cores. The script must be run on a machine that can support 4 cores.
 # ---------------------------------------------------------------------------
 
 # Import packages
-import sys
-sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import glob
 import os
 import pandas as pd
@@ -68,7 +66,7 @@ predictor_all = ['aspect', 'elevation', 'exposure', 'heat_load', 'position', 'ra
                  's2_09_07_rededge3', 's2_09_08_nearir', 's2_09_08a_rededge4', 's2_09_11_shortir1', 's2_09_12_shortir2',
                  's2_09_evi2', 's2_09_nbr', 's2_09_ndmi', 's2_09_ndsi', 's2_09_ndvi', 's2_09_ndwi']
 cv_groups = ['cv_group']
-retain_variables = ['segment_id']
+retain_variables = ['segment_id', 'POINT_X', 'POINT_Y']
 outer_cv_split_n = ['outer_cv_split_n']
 prediction = ['class_predict']
 output_variables = class_variable + predictor_all + outer_cv_split_n + prediction
