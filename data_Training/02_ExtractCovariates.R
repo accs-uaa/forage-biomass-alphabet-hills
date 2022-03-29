@@ -71,7 +71,7 @@ for (grid in grid_list) {
   input_points = paste('points_', grid, sep = '')
   
   # Define output table
-  output_data = paste(training_folder, '/table/points_', grid, '.csv', sep = '')
+  output_data = paste(training_folder, '/table/', grid, '.csv', sep = '')
   
   # Define zonal data
   zonal_data = paste(zonal_folder, grid, sep = '/')

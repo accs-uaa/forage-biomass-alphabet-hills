@@ -25,7 +25,7 @@ project_folder = os.path.join(drive, root_folder, 'Projects/WildlifeEcology/Moos
 segment_folder = os.path.join(project_folder, 'Data_Input/imagery/segments/gridded')
 prediction_folder = os.path.join(project_folder, 'Data_Output/predicted_tables', round_date)
 grid_folder = os.path.join(project_folder, 'Data_Output/predicted_rasters', round_date, 'physiography')
-output_folder = os.path.join(project_folder, 'Data_Output/output_rasters')
+output_folder = os.path.join(project_folder, 'Data_Output/output_rasters', round_date)
 
 # Define geodatabases
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')
