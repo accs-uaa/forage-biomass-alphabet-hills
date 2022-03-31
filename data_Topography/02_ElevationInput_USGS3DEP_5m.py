@@ -8,8 +8,6 @@
 # ---------------------------------------------------------------------------
 
 # Import packages
-import sys
-sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import merge_elevation_tiles
 import os

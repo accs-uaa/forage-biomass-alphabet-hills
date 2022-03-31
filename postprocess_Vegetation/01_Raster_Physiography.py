@@ -8,7 +8,6 @@
 # ---------------------------------------------------------------------------
 
 # Import packages
-import arcpy
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import predictions_to_raster

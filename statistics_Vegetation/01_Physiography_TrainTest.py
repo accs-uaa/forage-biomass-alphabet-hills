@@ -19,7 +19,7 @@ import datetime
 from package_Statistics import multiclass_train_test
 
 # Define round
-round_date = 'round_20220327'
+round_date = 'round_20220331'
 
 #### SET UP DIRECTORIES, FILES, AND FIELDS
 
@@ -52,7 +52,7 @@ predictor_all = ['aspect', 'elevation', 'exposure', 'heat_load', 'position', 'ra
                  'comp_01_blue', 'comp_02_green', 'comp_03_red', 'comp_04_nearir', 'comp_evi2', 'comp_ndvi', 'comp_ndwi',
                  'comp_01_blue_std', 'comp_02_green_std', 'comp_03_red_std', 'comp_04_nearir_std',
                  'comp_evi2_std', 'comp_ndvi_std', 'comp_ndwi_std',
-                 'vh', 'vv',
+                 'vh', 'vv', 'burn_diff',
                  's2_06_02_blue', 's2_06_03_green', 's2_06_04_red', 's2_06_05_rededge1', 's2_06_06_rededge2',
                  's2_06_07_rededge3', 's2_06_08_nearir', 's2_06_08a_rededge4', 's2_06_11_shortir1', 's2_06_12_shortir2',
                  's2_06_evi2', 's2_06_nbr', 's2_06_ndmi', 's2_06_ndsi', 's2_06_ndvi', 's2_06_ndwi',
@@ -99,6 +99,7 @@ for file in input_files:
     print(f'Reading input data {count} of {input_length}...')
     data = pd.read_csv(file)
     input_data = input_data.append(data, ignore_index=True, sort=True)
+    input_data = input_data.dropna(axis=0, how='any')
     input_data = input_data[input_data[class_variable[0]] > 0].copy()
     count += 1
 print(f'Input data contains {len(input_data)} rows.')

@@ -8,8 +8,6 @@
 # ---------------------------------------------------------------------------
 
 # Import packages
-import sys
-sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import normalized_metrics

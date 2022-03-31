@@ -8,9 +8,6 @@
 # ---------------------------------------------------------------------------
 
 # Import packages
-import sys
-
-sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import arcpy
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
@@ -22,7 +19,7 @@ root_folder = 'ACCS_Work'
 
 # Define folder structure
 project_folder = os.path.join(drive, root_folder, 'Projects/WildlifeEcology/Moose_AlphabetHills/Data')
-grid_folder = os.path.join(project_folder, 'Data_Input/validation/gridded')
+grid_folder = os.path.join(project_folder, 'Data_Input/imagery/segments/gridded')
 composite_folder = os.path.join(project_folder, 'Data_Input/imagery/composite/processed')
 zonal_folder = os.path.join(project_folder, 'Data_Input/zonal')
 

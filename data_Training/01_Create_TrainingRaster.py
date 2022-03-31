@@ -8,9 +8,6 @@
 # ---------------------------------------------------------------------------
 
 # Import packages
-import sys
-
-sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import convert_class_data
@@ -21,7 +18,7 @@ root_folder = 'ACCS_Work'
 
 # Define folder structure
 project_folder = os.path.join(drive, root_folder, 'Projects/WildlifeEcology/Moose_AlphabetHills/Data')
-training_folder = os.path.join(project_folder, 'Data_Input/training_data/processed')
+training_folder = os.path.join(project_folder, 'Data_Input/training/processed')
 
 # Define geodatabases
 work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb')

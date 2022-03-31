@@ -27,8 +27,8 @@ training_folder = paste(project_folder,
                         sep = '/')
 
 # Define output folders
-output_folder = paste(project_folder,
-                      'Data_Input/training_data',
+output_folder = paste(training_folder,
+                      'table',
                       sep = '/')
 
 # Define segments geodatabase
@@ -71,7 +71,7 @@ for (grid in grid_list) {
   input_points = paste('points_', grid, sep = '')
   
   # Define output table
-  output_data = paste(training_folder, '/table/', grid, '.csv', sep = '')
+  output_data = paste(output_folder, '/', grid, '.csv', sep = '')
   
   # Define zonal data
   zonal_data = paste(zonal_folder, grid, sep = '/')

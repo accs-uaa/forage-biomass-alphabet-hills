@@ -8,8 +8,6 @@
 # ---------------------------------------------------------------------------
 
 # Import packages
-import sys
-sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 from package_GeospatialProcessing import download_from_csv
 import os
 

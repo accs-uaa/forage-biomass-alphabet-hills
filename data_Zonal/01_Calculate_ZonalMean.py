@@ -2,15 +2,12 @@
 # ---------------------------------------------------------------------------
 # Calculate zonal means
 # Author: Timm Nawrocki
-# Last Updated: 2022-03-22
+# Last Updated: 2022-03-29
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Calculate zonal means" calculates zonal means of input datasets to segments defined in a raster.
 # ---------------------------------------------------------------------------
 
 # Import packages
-import sys
-
-sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import arcpy
 import os
 from package_GeospatialProcessing import arcpy_geoprocessing
@@ -22,11 +19,12 @@ root_folder = 'ACCS_Work'
 
 # Define folder structure
 project_folder = os.path.join(drive, root_folder, 'Projects/WildlifeEcology/Moose_AlphabetHills/Data')
-grid_folder = os.path.join(project_folder, 'Data_Input/validation/gridded')
+grid_folder = os.path.join(project_folder, 'Data_Input/imagery/segments/gridded')
 topography_folder = os.path.join(project_folder, 'Data_Input/topography/integer')
 hydrography_folder = os.path.join(project_folder, 'Data_Input/hydrography/processed')
 sent1_folder = os.path.join(project_folder, 'Data_Input/imagery/sentinel-1/processed')
 sent2_folder = os.path.join(project_folder, 'Data_Input/imagery/sentinel-2/processed')
+burn_folder = os.path.join(project_folder, 'Data_Input/imagery/burn/processed')
 composite_folder = os.path.join(project_folder, 'Data_Input/imagery/composite/processed')
 vegetation_folder = os.path.join(project_folder, 'Data_Input/vegetation/foliar_cover')
 zonal_folder = os.path.join(project_folder, 'Data_Input/zonal')
@@ -70,6 +68,13 @@ arcpy.env.workspace = sent2_folder
 sent2_rasters = arcpy.ListRasters('*', 'TIF')
 for raster in sent2_rasters:
     raster_path = os.path.join(sent2_folder, raster)
+    input_rasters.append(raster_path)
+
+# Create list of burn rasters
+arcpy.env.workspace = burn_folder
+burn_rasters = arcpy.ListRasters('*', 'TIF')
+for raster in burn_rasters:
+    raster_path = os.path.join(burn_folder, raster)
     input_rasters.append(raster_path)
 
 # Create list of composite rasters

@@ -8,8 +8,6 @@
 # ---------------------------------------------------------------------------
 
 # Import packages
-import sys
-sys.path.append('C:/Users/timmn/Documents/Repositories/alphabet-hills-moose-browse/')
 import arcpy
 import datetime
 import os
@@ -81,11 +79,9 @@ print('----------')
 #### POST-PROCESS IMAGE SEGMENTS
 
 # Create key word arguments
-kwargs_process = {'cell_size': 2,
-                  'work_geodatabase': work_geodatabase,
+kwargs_process = {'cell_size': 2, 'work_geodatabase': work_geodatabase,
                   'input_array': [alphabet_raster, segments_merge],
-                  'output_array': [segments_original, segments_polygon, segments_point]
-                  }
+                  'output_array': [segments_original, segments_polygon, segments_point]}
 
 # Post-process segments
 print('Post-processing image segments...')
