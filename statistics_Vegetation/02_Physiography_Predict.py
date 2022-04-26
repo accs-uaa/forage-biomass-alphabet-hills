@@ -64,7 +64,10 @@ predictor_all = ['aspect', 'elevation', 'exposure', 'heat_load', 'position', 'ra
                  's2_09_02_blue', 's2_09_03_green', 's2_09_04_red', 's2_09_05_rededge1', 's2_09_06_rededge2',
                  's2_09_07_rededge3', 's2_09_08_nearir', 's2_09_08a_rededge4', 's2_09_11_shortir1', 's2_09_12_shortir2',
                  's2_09_evi2', 's2_09_nbr', 's2_09_ndmi', 's2_09_ndsi', 's2_09_ndvi', 's2_09_ndwi']
-retain_variables = ['segment_id', 'POINT_X', 'POINT_Y']
+retain_variables = ['segment_id', 'POINT_X', 'POINT_Y',
+                    'fol_alnus', 'fol_betshr', 'fol_bettre', 'fol_dectre', 'fol_dryas', 'fol_empnig', 'fol_erivag',
+                    'fol_picgla', 'fol_picmar', 'fol_rhoshr', 'fol_salshr', 'fol_sphagn', 'fol_vaculi', 'fol_vacvit',
+                    'fol_wetsed']
 prediction = ['physiography']
 output_columns = retain_variables + predictor_all
 

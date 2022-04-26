@@ -11,11 +11,16 @@
 def predictions_to_raster(**kwargs):
     """
     Description: joins attributes to a raster by value
-    Inputs: 'work_geodatabase' -- a geodatabase to store temporary results
+    Inputs: 'segment_folder' -- a folder containing gridded image segments
+            'prediction_folder' -- a folder containing the predicted class tables
+            'grid_folder' -- a folder to store the gridded raster outputs
+            'target_field' -- a field containing the data to convert to raster values
+            'attribute_dictionary' -- a dictionary to use in building the attribute table
+            'work_geodatabase' -- a geodatabase to store temporary results
             'input_array' -- an array containing the area raster, the input raster, and the attribute table
             'output_array' -- an array containing the output raster
     Returned Value: Returns a raster dataset on disk
-    Preconditions: requires an input raster and an attribute table that can be created through other scripts in this repository
+    Preconditions: requires an input raster and an predicted table that can be created through other scripts in this repository
     """
 
     # Import packages
@@ -32,6 +37,7 @@ def predictions_to_raster(**kwargs):
     prediction_folder = kwargs['prediction_folder']
     grid_folder = kwargs['grid_folder']
     target_field = kwargs['target_field']
+    attribute_dictionary = kwargs['attribute_dictionary']
     work_geodatabase = kwargs['work_geodatabase']
     area_raster = kwargs['input_array'][0]
     output_raster = kwargs['output_array'][0]
@@ -156,6 +162,19 @@ def predictions_to_raster(**kwargs):
                                        '1',
                                        'FIRST',
                                        'FIRST')
+    # Create raster attribute table
+    arcpy.management.BuildRasterAttributeTable(output_raster, 'Overwrite')
+    # Calculate attribute label field
+    code_block = '''def get_label(value, dictionary):
+    for label, id in dictionary.items():
+        if value == id:
+            return label'''
+    expression = f'get_label(!VALUE!, {attribute_dictionary})'
+    arcpy.management.CalculateField(output_raster,
+                                    'label',
+                                    expression,
+                                    'PYTHON3',
+                                    code_block)
     # End timing
     iteration_end = time.time()
     iteration_elapsed = int(iteration_end - iteration_start)
