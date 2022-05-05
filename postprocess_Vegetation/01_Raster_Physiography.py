@@ -35,11 +35,23 @@ alphabet_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.ti
 # Define output raster
 output_raster = os.path.join(output_folder, 'Alphabet_Physiography.tif')
 
+# Define physiography dictionary
+physiography_dictionary = {'barren': 1,
+                           'burned': 2,
+                           'drainage': 3,
+                           'riparian': 4,
+                           'floodplain': 5,
+                           'water': 6,
+                           'upland/lowland': 7,
+                           'aspen': 8
+                           }
+
 # Create key word arguments
 kwargs_attributes = {'segment_folder': segment_folder,
                      'prediction_folder': prediction_folder,
                      'grid_folder': grid_folder,
                      'target_field': 'physiography',
+                     'attribute_dictionary': physiography_dictionary,
                      'work_geodatabase': work_geodatabase,
                      'input_array': [alphabet_raster],
                      'output_array': [output_raster]
