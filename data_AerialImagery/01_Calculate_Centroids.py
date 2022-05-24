@@ -13,7 +13,7 @@ import os
 import glob
 
 # Set root directory
-drive = 'D:\\'
+drive = 'F:\\'
 root_folder = 'ACCS_Work'
 
 # Set overwrite option

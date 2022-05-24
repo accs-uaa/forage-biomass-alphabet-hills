@@ -12,7 +12,7 @@ import os
 import glob
 
 # Set root directory
-drive = 'D:\\'
+drive = 'F:\\'
 root_folder = 'ACCS_Work'
 
 # Set overwrite option
@@ -24,7 +24,7 @@ imagery_folder = os.path.join(project_folder, 'Data_Input/imagery/aerial')
 workspace_folder = os.path.join(imagery_folder, 'workspace')
 
 # Define workspace and geodatabase
-survey_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass_Surveys.gdb')
+survey_geodatabase = os.path.join(project_folder, 'AlphabetHills_Surveys.gdb')
 arcpy.env.workspace = survey_geodatabase
 
 # Define projection (NAD 83 / Alaska Albers)
@@ -47,7 +47,8 @@ for i in range(len(polygon_list)):
 
     # Define outputs
     output_hex_grid = os.path.join(survey_geodatabase, ''.join([file_name, '_Hex_Grid']))
-    output_centroid  = os.path.join(survey_geodatabase, ''.join([file_name, '_Hex_Centroids']))
+    output_centroid = os.path.join(survey_geodatabase, ''.join([file_name, '_Hex_Centroids']))
+    output_buffer = os.path.join(survey_geodatabase, ''.join([file_name, '_Hex_Buffers']))
 
     # Generate hexagon tessellation grid
     print("Creating hexagon grid...")
@@ -56,3 +57,8 @@ for i in range(len(polygon_list)):
     # Generate centroid in every hexagon
     print("Generating centroids...")
     arcpy.FeatureToPoint_management(output_hex_grid, output_centroid, "INSIDE")
+
+    # Create 2.4 meter buffer around centroid
+    print("Generating buffers...")
+    arcpy.analysis.PairwiseBuffer(output_centroid, output_buffer, buffer_distance_or_field="2.4 Meters",
+                                  dissolve_option="NONE")
