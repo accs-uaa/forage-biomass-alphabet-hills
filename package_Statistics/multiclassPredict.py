@@ -22,20 +22,6 @@ def multiclass_predict(classifier, X_data, prediction, class_number, output_data
 
     import pandas as pd
 
-    # Parse classes into column names
-    column_names = []
-    i = 1
-    while i <= class_number:
-        if i < 10:
-            column = 'class_0' + str(i)
-        elif i < 100:
-            column = 'class_' + str(i)
-        else:
-            print('ERROR: Class numbers greater than 100 not supported.')
-            quit()
-        column_names.append(column)
-        i += 1
-
     # Predict classes for the X data
     print('\t\tPredicting values...')
     class_prediction = classifier.predict(X_data)
@@ -43,12 +29,21 @@ def multiclass_predict(classifier, X_data, prediction, class_number, output_data
     # Predict probabilities for the X data
     print('\t\tPredicting probabilities...')
     class_probabilities = classifier.predict_proba(X_data)
-    probability_data = pd.DataFrame(class_probabilities, columns=column_names)
 
     # Concatenate predicted values to output data frame
     print('\t\tConcatenating results...')
     output_data = output_data.assign(prediction=class_prediction)
-    result = pd.concat([output_data, probability_data], axis=1)
-    result = result.rename(columns={'prediction': prediction[0]})
 
-    return result
+    # Concatenate probabilities to output data frame
+    i = 1
+    while i <= class_number:
+        if i < 10:
+            column_name = 'class_0' + str(i)
+        else:
+            column_name = 'class_' + str(i)
+        kwargs_assign = {column_name: class_probabilities[:,i - 1]}
+        output_data = output_data.assign(**kwargs_assign)
+        i += 1
+    output_data = output_data.rename(columns={'prediction': prediction[0]})
+
+    return output_data

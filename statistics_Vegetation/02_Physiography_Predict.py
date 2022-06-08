@@ -19,7 +19,7 @@ import datetime
 from package_Statistics import multiclass_predict
 
 # Define round
-round_date = 'round_20220331'
+round_date = 'round_20220607'
 
 # Define number of predicted classes
 class_number = 8
@@ -35,8 +35,8 @@ data_folder = os.path.join(drive,
                            root_folder,
                            'Projects/WildlifeEcology/Moose_AlphabetHills/Data')
 input_folder = os.path.join(data_folder, 'Data_Input/training/table')
-model_folder = os.path.join(data_folder, 'Data_Output/model_results', round_date)
-output_folder = os.path.join(data_folder, 'Data_Output/predicted_tables', round_date)
+model_folder = os.path.join(data_folder, 'Data_Output/model_results', round_date, 'physiography')
+output_folder = os.path.join(data_folder, 'Data_Output/predicted_tables', round_date, 'physiography')
 
 # Define input files
 os.chdir(input_folder)

@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Extract covariates to points
 # Author: Timm Nawrocki
-# Last Updated: 2022-03-26
+# Last Updated: 2022-06-07
 # Usage: Must be executed in R 4.0.0+.
 # Description: "Extract covariates to points" extracts data from rasters to points.
 # ---------------------------------------------------------------------------

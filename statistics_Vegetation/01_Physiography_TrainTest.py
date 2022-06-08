@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Train and test physiography classifier
 # Author: Timm Nawrocki
-# Last Updated: 2022-03-27
+# Last Updated: 2022-06-07
 # Usage: Must be executed in an Anaconda Python 3.9+ distribution.
 # Description: "Train and test physiography classifier " trains a random forest model to predict physiographic types from a set of training points. This script runs the model train and test steps to output a trained classifier file and predicted data set. The train-test classifier is set to use 4 cores. The script must be run on a machine that can support 4 cores.
 # ---------------------------------------------------------------------------
@@ -19,7 +19,7 @@ import datetime
 from package_Statistics import multiclass_train_test
 
 # Define round
-round_date = 'round_20220331'
+round_date = 'round_20220607'
 
 #### SET UP DIRECTORIES, FILES, AND FIELDS
 
@@ -32,7 +32,7 @@ data_folder = os.path.join(drive,
                            root_folder,
                            'Projects/WildlifeEcology/Moose_AlphabetHills/Data')
 data_input = os.path.join(data_folder, 'Data_Input/training/table')
-data_output = os.path.join(data_folder, 'Data_Output/model_results', round_date)
+data_output = os.path.join(data_folder, 'Data_Output/model_results', round_date, 'physiography')
 
 # Define input files
 os.chdir(data_input)
@@ -42,7 +42,7 @@ input_files = glob.glob('*.csv')
 output_csv = os.path.join(data_output, 'prediction.csv')
 output_classifier = os.path.join(data_output, 'classifier.joblib')
 importance_mdi_csv = os.path.join(data_output, 'importance_classifier_mdi.csv')
-confusion_csv = os.path.join(data_output, 'confusion_matrix.csv')
+confusion_csv = os.path.join(data_output, 'confusion_matrix_raw.csv')
 
 # Define variable sets
 class_variable = ['train_class']
