@@ -94,7 +94,7 @@ absolute_cover = cover_data_long %>%
 # Join additional cover to absolute cover
 additional_cover = read_xlsx(input_file,
                              sheet = additional_sheet) %>%
-  mutate(cover_type = 'absolute')
+  mutate(cover_type = 'absolute foliar cover')
 output_data = rbind(absolute_cover, additional_cover)
 
 # Join species names to data
@@ -102,11 +102,16 @@ output_data = output_data %>%
   # Join accepted names to codes
   left_join(taxa_all, by = 'code') %>%
   left_join(taxa_accepted, by = 'code_accepted') %>%
-  # Add standing dead to name_accepted
-  mutate(name_accepted = case_when(code == 'sd' ~ 'standing dead',
-                                   TRUE ~ name_accepted)) %>%
+  # Rename to match naming conventions in minimum standards
+  rename(cover_percent = cover,
+         name_original = code,
+         name_adjudicated = name_accepted) %>% 
   # Select output fields
-  select(site, code, name_accepted, cover, cover_type)
+  select(site, name_original, name_adjudicated, cover_type, dead_status, cover_percent)
+
+# Check that all codes matched with a name_accepted
+output_data %>% 
+  filter(is.na(name_adjudicated))
 
 # Export absolute cover data as csv file
 write.csv(output_data, file = output_file, fileEncoding = 'UTF-8', row.names = FALSE)
