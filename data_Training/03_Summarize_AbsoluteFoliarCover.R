@@ -7,6 +7,8 @@
 # Description: "Summarize plot absolute foliar cover" transforms the line-point intercept hits to absolute foliar cover.
 # ---------------------------------------------------------------------------
 
+rm(list=ls())
+
 # Set root directory
 drive = 'N:'
 root_folder = 'ACCS_Work'
@@ -65,18 +67,13 @@ taxa_accepted = as_tibble(dbGetQuery(database_connection, query_accepted))
 cover_data = read_xlsx(input_file,
                        sheet = cover_sheet)
 
-# Convert dead hits to standing dead
-cover_data = cover_data %>%
-  mutate(layer1 = case_when(l1dead == 1 ~ 'sd',
-                            TRUE ~ layer1)) %>%
-  mutate(layer2 = case_when(l2dead == 1 ~ 'sd',
-                            TRUE ~ layer2))
-
 # Transform cover data
 cover_data_long = cover_data %>%
-  select(site, line, point, layer1, layer2) %>%
   pivot_longer(cols = all_of(c('layer1', 'layer2')), names_to = 'layer') %>%
-  drop_na() %>%
+  # Add dead_status variable
+  mutate(dead_status = case_when(l1dead == 1 & layer == "layer1" ~ TRUE,
+                                 l2dead == 1 & layer == "layer2" ~ TRUE,
+                                 TRUE ~ FALSE)) %>% 
   # Change layer to integer
   mutate(layer=replace(layer, which(layer == 'layer1'), 1)) %>%
   mutate(layer=replace(layer, which(layer == 'layer2'), 2)) %>%
@@ -85,11 +82,11 @@ cover_data_long = cover_data %>%
   rename(code = value) %>%
   filter(code != 'none') %>%
   # Select final fields
-  select(site, code)
+  select(site, code, dead_status)
 
 # Summarize data by site and taxon
 absolute_cover = cover_data_long %>%
-  group_by(site, code) %>%
+  group_by(site, code,dead_status) %>%
   mutate(cover = round((n()/120)*100, digits = 1)) %>%
   mutate(cover_type = 'absolute') %>%
   distinct()
