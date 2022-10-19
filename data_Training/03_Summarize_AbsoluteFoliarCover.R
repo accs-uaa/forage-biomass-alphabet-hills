@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
 # Summarize plot absolute foliar cover
-# Author: Timm Nawrocki
-# Last Updated: 2022-03-30
+# Author: Timm Nawrocki, Amanda Droghini
+# Last Updated: 2022-10-19
 # Usage: Should be executed in R 4.1.0+.
 # Description: "Summarize plot absolute foliar cover" transforms the line-point intercept hits to absolute foliar cover.
 # ---------------------------------------------------------------------------
@@ -74,10 +74,6 @@ cover_data_long = cover_data %>%
   mutate(dead_status = case_when(l1dead == 1 & layer == "layer1" ~ TRUE,
                                  l2dead == 1 & layer == "layer2" ~ TRUE,
                                  TRUE ~ FALSE)) %>% 
-  # Change layer to integer
-  mutate(layer=replace(layer, which(layer == 'layer1'), 1)) %>%
-  mutate(layer=replace(layer, which(layer == 'layer2'), 2)) %>%
-  mutate(layer = as.integer(layer)) %>%
   # Rename value and remove none
   rename(code = value) %>%
   filter(code != 'none') %>%
@@ -86,32 +82,49 @@ cover_data_long = cover_data %>%
 
 # Summarize data by site and taxon
 absolute_cover = cover_data_long %>%
-  group_by(site, code,dead_status) %>%
-  mutate(cover = round((n()/120)*100, digits = 1)) %>%
-  mutate(cover_type = 'absolute') %>%
+  group_by(site, code, dead_status) %>%
+  mutate(cover = round((n()/120)*100, digits = 3)) %>%
+  mutate(cover_type = 'absolute foliar cover') %>%
   distinct()
 
 # Join additional cover to absolute cover
 additional_cover = read_xlsx(input_file,
                              sheet = additional_sheet) %>%
-  mutate(cover_type = 'absolute foliar cover')
+  mutate(cover_type = 'absolute foliar cover',
+         dead_status = as.logical("FALSE"))
+
 output_data = rbind(absolute_cover, additional_cover)
 
 # Join species names to data
-output_data = output_data %>%
+
+# Simplify taxonomic tables
+taxa_all <- taxa_all %>% 
+  select(taxon_code, taxon_name, taxon_accepted_code)
+
+taxa_accepted <- taxa_all %>% 
+  filter(taxon_code == taxon_accepted_code) %>% 
+  select(-taxon_code) %>% 
+  rename(name_adjudicated = taxon_name)
+
+output_data <- output_data %>%
   # Join accepted names to codes
-  left_join(taxa_all, by = 'code') %>%
-  left_join(taxa_accepted, by = 'code_accepted') %>%
+  left_join(taxa_all, by=c('code'='taxon_code')) %>%
+  rename(name_original = taxon_name) %>% 
+  left_join(taxa_accepted, by='taxon_accepted_code') %>% 
   # Rename to match naming conventions in minimum standards
-  rename(cover_percent = cover,
-         name_original = code,
-         name_adjudicated = name_accepted) %>% 
+  rename(cover_percent = cover) %>% 
+  ungroup() %>% 
   # Select output fields
   select(site, name_original, name_adjudicated, cover_type, dead_status, cover_percent)
 
-# Check that all codes matched with a name_accepted
-output_data %>% 
-  filter(is.na(name_adjudicated))
+# QA/QC ----
+
+# Do any of the columns have null values that need to be addressed?
+cbind(
+  lapply(
+    lapply(output_data, is.na)
+    , sum)
+)
 
 # Export absolute cover data as csv file
 write.csv(output_data, file = output_file, fileEncoding = 'UTF-8', row.names = FALSE)
