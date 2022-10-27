@@ -25,19 +25,30 @@ arcpy.env.overwriteOutput = True
 geodatabase = os.path.join(data_folder, 'AlphabetHills_Surveys.gdb')
 arcpy.env.workspace = geodatabase
 
-# Define projection (NAD 83 / Alaska Albers)
+# Define projections
+# Input is NAD 83 / Alaska Albers
+# Output is geographic GCS NAD 1983
 input_projection = 3338
 initial_projection = arcpy.SpatialReference(input_projection)
+output_projection = 6318
 
 # Define inputs
 input_list = arcpy.ListFeatureClasses(wild_card = "*_Points")
 
 # Iterate through each points file and extract values as delimited file
 for i in range(len(input_list)):
-    input_table = input_list[i]
+    input_feature = input_list[i]
 
-    # Define output
-    output_table = os.path.join('.'.join([input_table, 'csv']))
-    print('Processing ' + input_table + ', file ' + str(i + 1) + ' of ' + str(len(input_list)))
+    # Define outputs
+    output_feature = os.path.join(geodatabase, ''.join([input_feature, '_Project']))
+    output_table = os.path.join('.'.join([input_feature, 'csv']))
+    print('Processing ' + input_feature + ', file ' + str(i + 1) + ' of ' + str(len(input_list)))
 
-    arcpy.conversion.TableToTable(input_table, output_folder, output_table)
+    # Re-project to geographic coordinate system GCS NAD 1983
+    arcpy.management.Project(input_feature, output_feature, out_coor_system=output_projection)
+
+    # Add XY coordinates to each re-projected point
+    arcpy.management.AddXY(output_feature)
+
+    # Export as comma-separated delimited file
+    arcpy.conversion.TableToTable(output_feature, output_folder, output_table)
