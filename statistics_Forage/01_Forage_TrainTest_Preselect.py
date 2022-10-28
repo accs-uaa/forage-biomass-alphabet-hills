@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-# Train and test forage-site classifier
+# Train and test forage regressor
 # Author: Timm Nawrocki
-# Last Updated: 2022-10-24
+# Last Updated: 2022-10-28
 # Usage: Must be executed in an Anaconda Python 3.9+ distribution.
-# Description: "Train and test physiography classifier " trains a random forest model to predict physiographic types from a set of training points. This script runs the model train and test steps to output a trained classifier file and predicted data set. The train-test classifier is set to use 4 cores. The script must be run on a machine that can support 4 cores.
+# Description: "Train and test forage regressor " trains a Bayesian ridge model to predict total forage biomass from a set of training samples. This script runs the model train and test steps to output a trained regressor file and predicted data set.
 # ---------------------------------------------------------------------------
 
 # Import packages
@@ -25,7 +25,10 @@ from sklearn.model_selection import LeaveOneGroupOut
 round_date = 'round_20220607'
 
 # Define target group
-target = 'salix'
+target = 'alnalnsfru'
+
+# Select predictors
+predictor_set = ['fol_alnus', 'physio_riverine', 'ws_ratio']
 
 #### SET UP DIRECTORIES, FILES, AND FIELDS
 
@@ -44,11 +47,8 @@ output_folder = os.path.join(data_folder, 'Data_Output/model_results', round_dat
 if not os.path.exists(output_folder):
     os.mkdir(output_folder)
 
-# Define output data
+# Define output files
 output_csv = os.path.join(output_folder, 'prediction.csv')
-output_classifier = os.path.join(output_folder, 'classifier.joblib')
-importance_mdi_csv = os.path.join(output_folder, 'importance_classifier_mdi.csv')
-confusion_csv = os.path.join(output_folder, 'confusion_matrix_raw.csv')
 
 # Define variable sets
 regress_variable = ['mass_g_per_m2']
@@ -58,12 +58,12 @@ predictor_all = ['fol_alnus', 'fol_betshr', 'fol_bettre', 'fol_dectre', 'fol_dry
                  'physio_aspen', 'physio_barren', 'physio_burned', 'physio_drainage', 'physio_riverine',
                  'physio_upland', 'physio_water', 'ws_ratio',
                  'aspect', 'elevation', 'wetness']
-pred_variable = ['pred_mass']
+predict_variable = ['pred_mass']
 cv_groups = ['model_iteration']
 outer_cv_split_n = ['outer_cv_split_n']
 retain_variables = ['site_code', 'latitude_dd', 'longitude_dd']
 output_variables = retain_variables + cv_groups + outer_cv_split_n \
-                   + predictor_all + regress_variable + pred_variable
+                   + predictor_all + regress_variable + predict_variable
 
 # Define random state
 rstate = 21
@@ -73,9 +73,7 @@ rstate = 21
 # Create data frame of input data
 input_data = pd.read_csv(input_file)
 input_data['physio_riverine'] = input_data['physio_riparian'] + input_data['physio_floodplain']
-input_data['fol_alnsal'] = input_data['fol_alnus'] - input_data['fol_salshr']
 input_data['ws_ratio'] = input_data['fol_picgla']/(input_data['fol_picgla'] + input_data['fol_picmar'] + 1)
-input_data['bs_ratio'] = input_data['fol_picmar']/(input_data['fol_picgla'] + input_data['fol_picmar'] + 1)
 
 # Define outer and inner cross validation splits
 outer_cv_splits = LeaveOneGroupOut()
@@ -118,9 +116,6 @@ while outer_cv_i <= cv_length:
     iteration_start = time.time()
     print(f'\tConducting outer cross-validation iteration {outer_cv_i} of {cv_length}...')
 
-    #### CONDUCT MODEL TRAIN
-    ####____________________________________________________
-
     # Partition the outer train split by iteration number
     train_iteration = outer_train.loc[outer_train[outer_cv_split_n[0]] == outer_cv_i].copy()
     test_iteration = outer_test.loc[outer_test[outer_cv_split_n[0]] == outer_cv_i].copy()
@@ -137,7 +132,7 @@ while outer_cv_i <= cv_length:
     if not os.path.exists(iteration_folder):
         os.mkdir(iteration_folder)
 
-    # Identify X and y train splits for the classifier
+    # Identify X and y train splits
     X_train_regress = train_iteration[predictor_all].astype(float).copy()
     y_train_regress = train_iteration[regress_variable[0]].astype(float).copy()
 
@@ -147,17 +142,13 @@ while outer_cv_i <= cv_length:
                                          groups=train_iteration[cv_groups[0]], cv=inner_cv_splits)
     # Add predictions to inner data
     predict_data = pd.DataFrame(inner_prediction,
-                                columns=pred_variable)
+                                columns=predict_variable)
     inner_iteration = pd.concat([train_iteration, predict_data], axis=1)
     # Calculate performance metrics from output_results
     y_inner_observed = inner_iteration[regress_variable[0]]
-    y_inner_predicted = inner_iteration[pred_variable[0]]
+    y_inner_predicted = inner_iteration[predict_variable[0]]
     initial_r_score = r2_score(y_inner_observed, y_inner_predicted, sample_weight=None,
                                multioutput='uniform_average')
-
-    # Select predictors
-    predictor_set = ['fol_alnus', 'fol_picgla', 'fol_salshr', 'fol_vaculi', 'fol_wetsed',
-                     'physio_aspen', 'physio_drainage', 'physio_riverine']
 
     # Export predictor set for outer cross validation iteration
     predictor_file = os.path.join(iteration_folder, 'predictor_set.txt')
@@ -170,23 +161,23 @@ while outer_cv_i <= cv_length:
     outer_regressor = BayesianRidge()
     outer_regressor.fit(X_train_regress, y_train_regress)
 
-    # Identify X and y test splits for the classifier
+    # Identify X and y test splits
     X_test_regress = test_iteration[predictor_set].astype(float).copy()
     y_test_regress = test_iteration[regress_variable[0]].astype(float).copy()
 
     # Predict test data
     prediction = outer_regressor.predict(X_test_regress)
     predict_data = pd.DataFrame(prediction,
-                                columns=pred_variable)
+                                columns=predict_variable)
 
     # Add predictions to outer data
     output_iteration = pd.concat([test_iteration, predict_data], axis=1)
     outer_results = pd.concat([outer_results, output_iteration], axis=0, join='outer',
                               ignore_index=True, sort=True)
 
-    # Save classifier to an external file
-    output_classifier = os.path.join(iteration_folder, 'classifier.joblib')
-    joblib.dump(outer_regressor, output_classifier)
+    # Save regressor to an external file
+    output_regressor = os.path.join(iteration_folder, 'regressor.joblib')
+    joblib.dump(outer_regressor, output_regressor)
 
     # Print end message
     iteration_end = time.time()
@@ -199,6 +190,29 @@ while outer_cv_i <= cv_length:
     # Increase counter
     outer_cv_i += 1
 
+# TRAIN AND EXPORT FINAL MODEL
+
+# Identify X and y train splits
+X_train_regress = input_data[predictor_set].astype(float).copy()
+y_train_regress = input_data[regress_variable[0]].astype(float).copy()
+
+# Export predictor set for outer cross validation iteration
+predictor_file = os.path.join(output_folder, 'predictor_set.txt')
+with open(predictor_file, 'w') as fp:
+    for predictor in predictor_set:
+        fp.write(f'{predictor}\n')
+
+# Fit final regressor
+final_regressor = BayesianRidge()
+final_regressor.fit(X_train_regress, y_train_regress)
+
+# Save regressor to external file
+output_regressor = os.path.join(output_folder, 'regressor.joblib')
+joblib.dump(final_regressor, output_regressor)
+
+# Correct negative predictions to zero
+outer_results.loc[outer_results[predict_variable[0]] < 0, predict_variable[0]] = 0
+
 # Export output results to csv with column identifying test samples
 outer_results = outer_results[output_variables]
 outer_results.to_csv(output_csv, header=True, index=False, sep=',', encoding='utf-8')
@@ -207,7 +221,7 @@ outer_results.to_csv(output_csv, header=True, index=False, sep=',', encoding='ut
 
 # Partition output results to foliar cover observed and predicted
 y_regress_observed = outer_results[regress_variable[0]]
-y_regress_predicted = outer_results[pred_variable[0]]
+y_regress_predicted = outer_results[predict_variable[0]]
 
 # Calculate performance metrics from output_results
 r_score = r2_score(y_regress_observed, y_regress_predicted, sample_weight=None,

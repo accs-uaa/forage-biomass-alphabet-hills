@@ -21,6 +21,9 @@ from package_Statistics import multiclass_predict
 # Define round
 round_date = 'round_20220607'
 
+# Define target group
+target = 'alnalnsfru'
+
 #### SET UP DIRECTORIES, FILES, AND FIELDS
 
 # Set root directory
@@ -31,43 +34,41 @@ root_folder = 'ACCS_Work'
 data_folder = os.path.join(drive,
                            root_folder,
                            'Projects/WildlifeEcology/Moose_AlphabetHills/Data')
-input_folder = os.path.join(data_folder, 'Data_Input/training/table')
-model_folder = os.path.join(data_folder, 'Data_Output/model_results', round_date, 'physiography')
-output_folder = os.path.join(data_folder, 'Data_Output/predicted_tables', round_date, 'physiography')
+input_folder = os.path.join(data_folder, 'Data_Output/predicted_tables', round_date, 'physiography')
+model_folder = os.path.join(data_folder, 'Data_Output/model_results', round_date, 'forage', target)
+output_folder = os.path.join(data_folder, 'Data_Output/predicted_tables', round_date, 'forage', target)
+if not os.path.exists(output_folder):
+    os.mkdir(output_folder)
 
 # Define input files
 os.chdir(input_folder)
 input_files = glob.glob('*.csv')
-classifier_path = os.path.join(model_folder, 'classifier.joblib')
+regressor_path = os.path.join(model_folder, 'classifier.joblib')
 
 # Define variable sets
-regress_variable = ['mass_g_per_m2']
-predictor_all = ['fol_alnus', 'fol_betshr', 'fol_bettre', 'fol_dectre', 'fol_dryas', 'fol_empnig',
-                 'fol_erivag', 'fol_picgla', 'fol_picmar', 'fol_rhoshr', 'fol_salshr', 'fol_sphagn',
-                 'fol_vaculi', 'fol_vacvit', 'fol_wetsed',
-                 'physio_aspen', 'physio_barren', 'physio_burned', 'physio_drainage', 'physio_riverine',
-                 'physio_upland', 'physio_water', 'ws_ratio',
-                 'aspect', 'elevation', 'wetness']
-retain_variables = ['segment_id', 'POINT_X', 'POINT_Y',
-                    'fol_alnus', 'fol_betshr', 'fol_bettre', 'fol_dectre', 'fol_dryas', 'fol_empnig', 'fol_erivag',
-                    'fol_picgla', 'fol_picmar', 'fol_rhoshr', 'fol_salshr', 'fol_sphagn', 'fol_vaculi', 'fol_vacvit',
-                    'fol_wetsed']
-prediction = ['physiography']
-output_columns = retain_variables + predictor_all
+retain_variables = ['segment_id', 'POINT_X', 'POINT_Y']
+predict_variable = ['mass_g_per_m2']
 
 # Define random state
 rstate = 21
 
-# Load model into memory
-print('Loading classifier into memory...')
-segment_start = time.time()
-classifier = joblib.load(classifier_path)
-# Report success
-segment_end = time.time()
-segment_elapsed = int(segment_end - segment_start)
-segment_success_time = datetime.datetime.now()
-print(f'Completed at {segment_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=segment_elapsed)})')
-print('----------')
+#### PREDICT FINAL REGRESSOR
+
+# Define input files
+regressor_path = os.path.join(model_folder, 'regressor.joblib')
+predictor_file = os.path.join(model_folder, 'predictor_set.txt')
+
+# Read predictor set to list
+predictor_set = []
+text_reader = open(predictor_file, 'r')
+text_lines = text_reader.readlines()
+text_reader.close()
+for predictor in text_lines:
+    predictor = predictor[:len(predictor) - 1]
+    predictor_set.append(predictor)
+
+# Load regressor into memory
+regressor = joblib.load(regressor_path)
 
 # Predict each input dataset
 count = 1
@@ -84,28 +85,50 @@ for file in input_files:
         print('\tLoading input data')
         segment_start = time.time()
         all_data = pd.read_csv(file)
-        input_data = all_data[retain_variables + class_variable + predictor_all].copy()
+        # Rename physiography variables
+        all_data = all_data.rename(columns={'class_01': 'physio_barren',
+                                            'class_02': 'physio_burned',
+                                            'class_03': 'physio_drainage',
+                                            'class_04': 'physio_riparian',
+                                            'class_05': 'physio_floodplain',
+                                            'class_06': 'physio_water',
+                                            'class_07': 'physio_upland',
+                                            'class_08': 'physio_aspen'})
+        # Create new variables
+        all_data['physio_riverine'] = all_data['physio_riparian'] + all_data['physio_floodplain']
+        all_data['ws_ratio'] = all_data['fol_picgla'] / (all_data['fol_picgla'] + all_data['fol_picmar'] + 1)
+        # Select input data
+        input_data = all_data[retain_variables + predictor_set].copy()
         input_data = input_data.dropna(axis=0, how='any')
         print(f'\tInput dataset contains {len(input_data)} rows...')
-        X_data = input_data[predictor_all].astype(float)
+        X_data = input_data[predictor_set].astype(float)
         # Prepare output_data
-        output_data = input_data[output_columns]
+        output_data = input_data[retain_variables]
         # Report success
         segment_end = time.time()
         segment_elapsed = int(segment_end - segment_start)
         segment_success_time = datetime.datetime.now()
-        print(f'\tCompleted at {segment_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=segment_elapsed)})')
+        print(
+            f'\tCompleted at {segment_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=segment_elapsed)})')
         print('\t----------')
 
         # Predict data
         print('\tPredicting classes to points...')
         segment_start = time.time()
-        output_data = multiclass_predict(classifier, X_data, prediction, class_number, output_data)
+        prediction = regressor.predict(X_data)
+        predict_data = pd.DataFrame(prediction,
+                                    columns=predict_variable)
+
+        # Add predictions to outer data
+        output_data = pd.concat([output_data, predict_data], axis=1)
+        # Correct negative predictions to zero
+        output_data.loc[output_data[predict_variable[0]] < 0, predict_variable[0]] = 0
         # Report success
         segment_end = time.time()
         segment_elapsed = int(segment_end - segment_start)
         segment_success_time = datetime.datetime.now()
-        print(f'\tCompleted at {segment_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=segment_elapsed)})')
+        print(
+            f'\tCompleted at {segment_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=segment_elapsed)})')
         print('\t----------')
 
         # Export output data to csv
@@ -116,7 +139,8 @@ for file in input_files:
         segment_end = time.time()
         segment_elapsed = int(segment_end - segment_start)
         segment_success_time = datetime.datetime.now()
-        print(f'\tCompleted at {segment_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=segment_elapsed)})')
+        print(
+            f'\tCompleted at {segment_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=segment_elapsed)})')
         print('\t----------')
 
     else:

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-# Train and test forage-site classifier
+# Train and test forage regressor
 # Author: Timm Nawrocki
-# Last Updated: 2022-10-24
+# Last Updated: 2022-10-28
 # Usage: Must be executed in an Anaconda Python 3.9+ distribution.
-# Description: "Train and test physiography classifier " trains a random forest model to predict physiographic types from a set of training points. This script runs the model train and test steps to output a trained classifier file and predicted data set. The train-test classifier is set to use 4 cores. The script must be run on a machine that can support 4 cores.
+# Description: "Train and test forage regressor " trains a Bayesian ridge model to predict total forage biomass from a set of training samples. This script runs the model train and test steps to output a trained regressor file and predicted data set.
 # ---------------------------------------------------------------------------
 
 # Import packages
@@ -57,12 +57,12 @@ predictor_all = ['fol_alnus', 'fol_betshr', 'fol_bettre', 'fol_dectre', 'fol_dry
                  'fol_vaculi', 'fol_vacvit', 'fol_wetsed',
                  'physio_aspen', 'physio_barren', 'physio_burned', 'physio_drainage', 'physio_riverine',
                  'physio_upland', 'physio_water']
-pred_variable = ['pred_mass']
+predict_variable = ['pred_mass']
 cv_groups = ['model_iteration']
 outer_cv_split_n = ['outer_cv_split_n']
 retain_variables = ['site_code', 'latitude_dd', 'longitude_dd']
 output_variables = retain_variables + cv_groups + outer_cv_split_n \
-                   + predictor_all + regress_variable + pred_variable
+                   + predictor_all + regress_variable + predict_variable
 
 # Define random state
 rstate = 21
@@ -143,11 +143,11 @@ while outer_cv_i <= cv_length:
                                          groups=train_iteration[cv_groups[0]], cv=inner_cv_splits)
     # Add predictions to inner data
     predict_data = pd.DataFrame(inner_prediction,
-                                columns=pred_variable)
+                                columns=predict_variable)
     inner_iteration = pd.concat([train_iteration, predict_data], axis=1)
     # Calculate performance metrics from output_results
     y_inner_observed = inner_iteration[regress_variable[0]]
-    y_inner_predicted = inner_iteration[pred_variable[0]]
+    y_inner_predicted = inner_iteration[predict_variable[0]]
     initial_r_score = r2_score(y_inner_observed, y_inner_predicted, sample_weight=None,
                                multioutput='uniform_average')
 
@@ -164,10 +164,10 @@ while outer_cv_i <= cv_length:
         inner_prediction = cross_val_predict(inner_regressor, X=X_train_regress, y=y_train_regress,
                                              groups=train_iteration[cv_groups[0]], cv=inner_cv_splits)
         inner_data = pd.DataFrame(inner_prediction,
-                                  columns=pred_variable)
+                                  columns=predict_variable)
         inner_iteration = pd.concat([train_iteration, inner_data], axis=1)
         y_inner_observed = inner_iteration[regress_variable[0]]
-        y_inner_predicted = inner_iteration[pred_variable[0]]
+        y_inner_predicted = inner_iteration[predict_variable[0]]
         r_score = r2_score(y_inner_observed, y_inner_predicted, sample_weight=None,
                            multioutput='uniform_average')
         # Add removed predictor variable to predictor set if removal caused score to drop
@@ -196,7 +196,7 @@ while outer_cv_i <= cv_length:
     # Predict test data
     prediction = outer_regressor.predict(X_test_regress)
     predict_data = pd.DataFrame(prediction,
-                                columns=pred_variable)
+                                columns=predict_variable)
 
     # Add predictions to outer data
     output_iteration = pd.concat([test_iteration, predict_data], axis=1)
@@ -226,7 +226,7 @@ outer_results.to_csv(output_csv, header=True, index=False, sep=',', encoding='ut
 
 # Partition output results to foliar cover observed and predicted
 y_regress_observed = outer_results[regress_variable[0]]
-y_regress_predicted = outer_results[pred_variable[0]]
+y_regress_predicted = outer_results[predict_variable[0]]
 
 # Calculate performance metrics from output_results
 r_score = r2_score(y_regress_observed, y_regress_predicted, sample_weight=None,
