@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Create existing vegetation type rasters
 # Author: Timm Nawrocki
-# Last Updated: 2022-04-21
+# Last Updated: 2022-10-27
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Create existing vegetation type rasters" combines tiles into a vegetation type raster.
 # ---------------------------------------------------------------------------
@@ -13,7 +13,7 @@ from package_GeospatialProcessing import arcpy_geoprocessing
 from package_GeospatialProcessing import predictions_to_raster
 
 # Set round date
-round_date = 'round_20220331'
+round_date = 'round_20220607'
 
 # Set root directory
 drive = 'N:/'
@@ -22,7 +22,7 @@ root_folder = 'ACCS_Work'
 # Define folder structure
 project_folder = os.path.join(drive, root_folder, 'Projects/WildlifeEcology/Moose_AlphabetHills/Data')
 segment_folder = os.path.join(project_folder, 'Data_Input/imagery/segments/gridded')
-prediction_folder = os.path.join(project_folder, 'Data_Output/modified_tables', round_date)
+prediction_folder = os.path.join(project_folder, 'Data_Output/predicted_tables', round_date, 'evt')
 grid_folder = os.path.join(project_folder, 'Data_Output/predicted_rasters', round_date, 'evt')
 output_folder = os.path.join(project_folder, 'Data_Output/output_rasters', round_date)
 
@@ -65,7 +65,9 @@ kwargs_attributes = {'segment_folder': segment_folder,
                      'prediction_folder': prediction_folder,
                      'grid_folder': grid_folder,
                      'target_field': 'evt_value',
+                     'data_type': 'discrete',
                      'attribute_dictionary': evt_dictionary,
+                     'conversion_factor': 'NA',
                      'work_geodatabase': work_geodatabase,
                      'input_array': [alphabet_raster],
                      'output_array': [output_raster]

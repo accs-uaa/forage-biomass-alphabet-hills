@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Assign existing vegetation type
 # Author: Timm Nawrocki
-# Last Updated: 2022-04-21
+# Last Updated: 2022-10-27
 # Usage: Must be executed in an Anaconda Python 3.9+ distribution.
 # Description: "Assign existing vegetation type" assigns a vegetation type label from physiography and foliar cover.
 # ---------------------------------------------------------------------------
@@ -13,7 +13,7 @@ import pandas as pd
 import os
 
 # Define round
-round_date = 'round_20220331'
+round_date = 'round_20220607'
 
 # Set root directory
 drive = 'N:/'
@@ -23,8 +23,8 @@ root_folder = 'ACCS_Work'
 data_folder = os.path.join(drive,
                            root_folder,
                            'Projects/WildlifeEcology/Moose_AlphabetHills/Data/Data_Output')
-input_folder = os.path.join(data_folder, 'predicted_tables', round_date)
-output_folder = os.path.join(data_folder, 'modified_tables', round_date)
+input_folder = os.path.join(data_folder, 'predicted_tables', round_date, 'physiography')
+output_folder = os.path.join(data_folder, 'predicted_tables', round_date, 'evt')
 
 # Define input files
 os.chdir(input_folder)

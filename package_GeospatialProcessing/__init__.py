@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Initialization for Geospatial Processing Module
 # Author: Timm Nawrocki
-# Last Updated: 2022-01-14
+# Last Updated: 2022-10-24
 # Usage: Individual functions have varying requirements. All functions that use arcpy must be executed in an ArcGIS Pro Python 3.6+ distribution.
 # Description: This initialization file imports modules in the package so that the contents are accessible.
 # ---------------------------------------------------------------------------
@@ -21,6 +21,7 @@ from package_GeospatialProcessing.createSampleBlock import create_sample_block
 from package_GeospatialProcessing.downloadFromCSV import download_from_csv
 from package_GeospatialProcessing.downloadFromDrive import download_from_drive
 from package_GeospatialProcessing.extractRaster import extract_raster
+from package_GeospatialProcessing.formatSiteData import format_site_data
 from package_GeospatialProcessing.generateHydrographicPosition import generate_hydrographic_position
 from package_GeospatialProcessing.generateFlowlines import generate_flowlines
 from package_GeospatialProcessing.listFromDrive import list_from_drive
@@ -34,3 +35,4 @@ from package_GeospatialProcessing.predictionsToRaster import predictions_to_rast
 from package_GeospatialProcessing.probabilisticSiteSelection import probabilistic_site_selection
 from package_GeospatialProcessing.reprojectExtract import reproject_extract
 from package_GeospatialProcessing.spliceSegmentsFloodplains import splice_segments_floodplains
+from package_GeospatialProcessing.tableToProjectedFeatureClass import table_to_feature_projected
