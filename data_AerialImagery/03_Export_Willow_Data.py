@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Export data from remote line-point intercepts
 # Author: Amanda Droghini, Alaska Center for Conservation Science
-# Last Updated: 2022-10-27
+# Last Updated: 2022-10-28
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Export data from remote line-point intercepts" extracts data from the line-point intercept files (point feature types) to a delimited csv file.
 # ---------------------------------------------------------------------------
@@ -10,13 +10,11 @@
 # Load modules
 import arcpy
 import os
-import glob
 
 # Set root directory
 drive = 'F:\\'
 root_folder = 'ACCS_Work\\Projects\\WildlifeEcology\\Moose_AlphabetHills'
 data_folder = os.path.join(drive,root_folder,'Data')
-output_folder = os.path.join(data_folder, 'Data_Output', 'image_tables')
 
 # Set overwrite option
 arcpy.env.overwriteOutput = True
@@ -34,6 +32,9 @@ output_projection = 6318
 
 # Define inputs
 input_list = arcpy.ListFeatureClasses(wild_card = "*_Points")
+
+# Define outputs
+output_folder = os.path.join(data_folder, 'Data_Output', 'aerial_imagery_tables', 'survey_data')
 
 # Iterate through each points file and extract values as delimited file
 for i in range(len(input_list)):
