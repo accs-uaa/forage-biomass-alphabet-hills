@@ -17,7 +17,7 @@ from package_GeospatialProcessing import predictions_to_raster
 round_date = 'round_20220607'
 
 # Set target
-target = 'alnalnsfru'
+target = 'salix'
 
 # Set root directory
 drive = 'N:/'
@@ -28,7 +28,7 @@ project_folder = os.path.join(drive, root_folder, 'Projects/WildlifeEcology/Moos
 segment_folder = os.path.join(project_folder, 'Data_Input/imagery/segments/gridded')
 prediction_folder = os.path.join(project_folder, 'Data_Output/predicted_tables', round_date, 'forage', target)
 raster_folder = os.path.join(project_folder, 'Data_Output/predicted_rasters', round_date, 'for_' + target)
-output_folder = os.path.join(project_folder, 'Data_Output/output_rasters', round_date)
+output_folder = os.path.join(project_folder, 'Data_Output/output_rasters', round_date, 'forage')
 if not os.path.exists(raster_folder):
     os.mkdir(raster_folder)
 
@@ -39,7 +39,7 @@ work_geodatabase = os.path.join(project_folder, 'AlphabetHillsBrowseBiomass.gdb'
 alphabet_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.tif')
 
 # Define output raster
-output_raster = os.path.join(output_folder, 'Alphabet_forage_' + target + '.tif')
+output_raster = os.path.join(output_folder, 'Alphabet_for_' + target + '.tif')
 
 # Create key word arguments
 kwargs_continuous = {'segment_folder': segment_folder,

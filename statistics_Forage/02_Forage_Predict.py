@@ -15,14 +15,11 @@ import pandas as pd
 import time
 import datetime
 
-# Import functions from repository statistics package
-from package_Statistics import multiclass_predict
-
 # Define round
 round_date = 'round_20220607'
 
 # Define target group
-target = 'alnalnsfru'
+target = 'salix'
 
 #### SET UP DIRECTORIES, FILES, AND FIELDS
 
@@ -34,7 +31,7 @@ root_folder = 'ACCS_Work'
 data_folder = os.path.join(drive,
                            root_folder,
                            'Projects/WildlifeEcology/Moose_AlphabetHills/Data')
-input_folder = os.path.join(data_folder, 'Data_Output/predicted_tables', round_date, 'physiography')
+input_folder = os.path.join(data_folder, 'Data_Output/predicted_tables', round_date, 'additional')
 model_folder = os.path.join(data_folder, 'Data_Output/model_results', round_date, 'forage', target)
 output_folder = os.path.join(data_folder, 'Data_Output/predicted_tables', round_date, 'forage', target)
 if not os.path.exists(output_folder):
@@ -96,7 +93,14 @@ for file in input_files:
                                             'class_08': 'physio_aspen'})
         # Create new variables
         all_data['physio_riverine'] = all_data['physio_riparian'] + all_data['physio_floodplain']
-        all_data['ws_ratio'] = all_data['fol_picgla'] / (all_data['fol_picgla'] + all_data['fol_picmar'] + 1)
+        # Apply correction for over-estimation of alder
+        all_data['fol_alnus'] = all_data['fol_alnus'] - 10
+        all_data.loc[all_data['fol_alnus'] < 0, 'fol_alnus'] = 0
+        # Find where deciduous shrubs are dominant
+        all_data['fol_decshr'] = all_data['fol_decshr'] - 25
+        all_data.loc[all_data['fol_decshr'] < 0, 'fol_decshr'] = 0
+        # Create picea variable
+        all_data['fol_picea'] = all_data['fol_picgla'] + all_data['fol_picmar']
         # Select input data
         input_data = all_data[retain_variables + predictor_set].copy()
         input_data = input_data.dropna(axis=0, how='any')

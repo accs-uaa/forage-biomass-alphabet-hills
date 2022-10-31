@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Extract features to sites
 # Author: Timm Nawrocki
-# Last Updated: 2022-10-24
+# Last Updated: 2022-10-29
 # Usage: Must be executed in R 4.0.0+.
 # Description: "Extract features to sites" extracts data from rasters to points representing plot locations and collapses multi-point plots into single points with plot-level means.
 # ---------------------------------------------------------------------------
@@ -24,17 +24,18 @@ project_folder = paste(drive,
 site_folder = paste(project_folder,
                     'Data_Input/forage',
                     sep = '/')
-vegetation_folder = paste(project_folder,
-                          'Data_Output/output_rasters',
-                          round_date,
-                          sep = '/')
+foliar_folder = paste(project_folder,
+                      'Data_Output/output_rasters',
+                      round_date,
+                      'foliar_cover',
+                      sep = '/')
+physiography_folder = paste(project_folder,
+                            'Data_Output/output_rasters',
+                            round_date,
+                            'physioprobability',
+                            sep = '/')
 validation_folder = paste(project_folder,
                           'Data_Input/validation',
-                          sep = '/')
-topography_folder = paste(project_folder,
-                          'Data_Output/output_rasters',
-                          round_date,
-                          'topography',
                           sep = '/')
 
 # Define input site data
@@ -64,12 +65,12 @@ library(tidyr)
 site_metadata = read.csv(site_file, fileEncoding = 'UTF-8')
   
 # Create a list of all predictor rasters
-predictors_vegetation = list.files(vegetation_folder, pattern = 'tif$', full.names = TRUE)
+predictors_foliar = list.files(foliar_folder, pattern = 'tif$', full.names = TRUE)
+predictors_physio = list.files(physiography_folder, pattern = 'tif$', full.names = TRUE)
 predictors_validation = list.files(validation_folder, pattern = 'tif$', full.names = TRUE)
-predictors_topography = list.files(topography_folder, pattern = 'tif$', full.names = TRUE)
-predictors_all = c(predictors_vegetation,
-                   predictors_validation,
-                   predictors_topography)
+predictors_all = c(predictors_foliar,
+                   predictors_physio,
+                   predictors_validation)
 print("Number of predictor rasters:")
 print(length(predictors_all))
   
@@ -82,7 +83,6 @@ sites_extracted = data.frame(site_data, raster::extract(predictor_stack, site_da
   
 # Convert field names to standard
 sites_extracted = sites_extracted %>%
-  dplyr::select(-label) %>%
   rename(fol_alnus = Alphabet_fol_alnus,
          fol_betshr = Alphabet_fol_betshr,
          fol_bettre = Alphabet_fol_bettre,
@@ -98,6 +98,8 @@ sites_extracted = sites_extracted %>%
          fol_vaculi = Alphabet_fol_vaculi,
          fol_vacvit = Alphabet_fol_vacvit,
          fol_wetsed = Alphabet_fol_wetsed,
+         fol_forb = Alphabet_fol_forb,
+         fol_decshr = Alphabet_fol_decshr,
          physio_aspen = Alphabet_PhysioProbability_Aspen,
          physio_barren = Alphabet_PhysioProbability_Barren,
          physio_burned = Alphabet_PhysioProbability_Burned,
@@ -106,17 +108,6 @@ sites_extracted = sites_extracted %>%
          physio_riparian = Alphabet_PhysioProbability_Riparian,
          physio_upland = Alphabet_PhysioProbability_UplandLowland,
          physio_water = Alphabet_PhysioProbability_Water,
-         aspect = Aspect,
-         elevation = Elevation,
-         exposure = Exposure,
-         heat_load = HeatLoad,
-         position = Position,
-         radiation = Radiation,
-         roughness = Roughness,
-         slope = Slope,
-         surface_area = SurfaceArea,
-         surface_relief = SurfaceRelief,
-         wetness = Wetness,
          model_iteration = Alphabet_ModelIteration,
          validation_group = Alphabet_ValidationGroups)
 
@@ -138,6 +129,8 @@ sites_mean = sites_extracted %>%
          fol_vaculi = as.numeric(fol_vaculi),
          fol_vacvit = as.numeric(fol_vacvit),
          fol_wetsed = as.numeric(fol_wetsed),
+         fol_forb = as.numeric(fol_forb),
+         fol_decshr = as.numeric(fol_decshr),
          physio_aspen = as.numeric(physio_aspen),
          physio_barren = as.numeric(physio_barren),
          physio_burned = as.numeric(physio_burned),
@@ -146,17 +139,6 @@ sites_mean = sites_extracted %>%
          physio_riparian = as.numeric(physio_riparian),
          physio_upland = as.numeric(physio_upland),
          physio_water = as.numeric(physio_water),
-         aspect = as.numeric(aspect),
-         elevation = as.numeric(elevation),
-         exposure = as.numeric(exposure),
-         heat_load = as.numeric(heat_load),
-         position = as.numeric(position),
-         radiation = as.numeric(radiation),
-         roughness = as.numeric(roughness),
-         slope = as.numeric(slope),
-         surface_area = as.numeric(surface_area),
-         surface_relief = as.numeric(surface_relief),
-         wetness = as.numeric(wetness),
          model_iteration = as.numeric(model_iteration),
          validation_group = as.numeric(validation_group)) %>%
   summarize(fol_alnus = mean(fol_alnus),
@@ -174,6 +156,8 @@ sites_mean = sites_extracted %>%
             fol_vaculi = mean(fol_vaculi),
             fol_vacvit = mean(fol_vacvit),
             fol_wetsed = mean(fol_wetsed),
+            fol_forb = mean(fol_forb),
+            fol_decshr = mean(fol_decshr),
             physio_aspen = mean(physio_aspen),
             physio_barren = mean(physio_barren),
             physio_burned = mean(physio_burned),
@@ -182,17 +166,6 @@ sites_mean = sites_extracted %>%
             physio_riparian = mean(physio_riparian),
             physio_upland = mean(physio_upland),
             physio_water = mean(physio_water),
-            aspect = mean(aspect),
-            elevation = mean(elevation),
-            exposure = mean(exposure),
-            heat_load = mean(heat_load),
-            position = mean(position),
-            radiation = mean(radiation),
-            roughness = mean(roughness),
-            slope = mean(slope),
-            surface_area = mean(surface_area),
-            surface_relief = mean(surface_relief),
-            wetness = mean(wetness),
             model_iteration = round(mean(model_iteration), digits = 0),
             validation_group = round(mean(validation_group), digits = 0),
             num_points = n()) %>%
