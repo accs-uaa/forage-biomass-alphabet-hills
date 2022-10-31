@@ -25,10 +25,10 @@ from sklearn.model_selection import LeaveOneGroupOut
 round_date = 'round_20220607'
 
 # Define target group
-target = 'alnalnsfru'
+target = 'betshr'
 
 # Select predictors
-predictor_set = ['fol_alnus', 'physio_riverine', 'ws_ratio']
+predictor_set = ['fol_betshr', 'fol_erivag', 'fol_picea', 'fol_salshr', 'fol_vacvit', 'fol_wetsed', 'physio_aspen', 'physio_riverine']
 
 #### SET UP DIRECTORIES, FILES, AND FIELDS
 
@@ -56,8 +56,7 @@ predictor_all = ['fol_alnus', 'fol_betshr', 'fol_bettre', 'fol_dectre', 'fol_dry
                  'fol_erivag', 'fol_picgla', 'fol_picmar', 'fol_rhoshr', 'fol_salshr', 'fol_sphagn',
                  'fol_vaculi', 'fol_vacvit', 'fol_wetsed',
                  'physio_aspen', 'physio_barren', 'physio_burned', 'physio_drainage', 'physio_riverine',
-                 'physio_upland', 'physio_water', 'ws_ratio',
-                 'aspect', 'elevation', 'wetness']
+                 'physio_upland', 'physio_water']
 predict_variable = ['pred_mass']
 cv_groups = ['model_iteration']
 outer_cv_split_n = ['outer_cv_split_n']
@@ -73,7 +72,14 @@ rstate = 21
 # Create data frame of input data
 input_data = pd.read_csv(input_file)
 input_data['physio_riverine'] = input_data['physio_riparian'] + input_data['physio_floodplain']
-input_data['ws_ratio'] = input_data['fol_picgla']/(input_data['fol_picgla'] + input_data['fol_picmar'] + 1)
+# Apply correction for over-estimation of alder
+input_data['fol_alnus'] = input_data['fol_alnus'] - 10
+input_data.loc[input_data['fol_alnus'] < 0, 'fol_alnus'] = 0
+# Find where deciduous shrubs are dominant
+input_data['fol_decshr'] = input_data['fol_decshr'] - 25
+input_data.loc[input_data['fol_decshr'] < 0, 'fol_decshr'] = 0
+# Create picea variable
+input_data['fol_picea'] = input_data['fol_picgla'] + input_data['fol_picmar']
 
 # Define outer and inner cross validation splits
 outer_cv_splits = LeaveOneGroupOut()
