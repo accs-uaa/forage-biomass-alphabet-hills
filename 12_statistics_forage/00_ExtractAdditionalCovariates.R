@@ -22,7 +22,7 @@ project_folder = paste(drive,
 input_folder = paste(project_folder,
                      'Data_Output/predicted_tables',
                      round_date,
-                     'physiography',
+                     'surficial_features',
                      sep = '/')
 raster_folder = paste(project_folder,
                       'Data_Output/output_rasters',
@@ -39,6 +39,7 @@ output_folder = paste(project_folder,
 
 # Define input datasets
 forb_raster = paste(raster_folder, 'Alphabet_fol_forb.tif', sep = '/')
+graminoid_raster = paste(raster_folder, 'Alphabet_fol_graminoid.tif', sep = '/')
 decshr_raster = paste(raster_folder, 'Alphabet_fol_decshr.tif', sep = '/')
 
 # Define grids
@@ -60,7 +61,7 @@ library(stringr)
 # Generate a stack of rasters
 print('Creating raster stack...')
 start = proc.time()
-raster_stack = stack(c(forb_raster, decshr_raster))
+raster_stack = stack(c(forb_raster, graminoid_raster, decshr_raster))
 end = proc.time() - start
 print(end[3])
 
@@ -80,7 +81,8 @@ for (grid in grid_list) {
   
   # Create output table if it does not already exist
   if (!file.exists(output_file)) {
-    print(paste('Extracting segments ', toString(count), ' out of ', toString(grid_length), '...', sep=''))
+    print(paste('Extracting segments ', toString(count), ' out of ',
+                toString(grid_length), '...', sep=''))
     
     # Read path data and extract covariates
     print('Extracting covariates...')
@@ -97,6 +99,7 @@ for (grid in grid_list) {
     # Convert field names to standard
     point_extract = point_extract %>%
       dplyr::rename(fol_forb = Alphabet_fol_forb,
+                    fol_gramnd = Alphabet_fol_graminoid,
                     fol_decshr = Alphabet_fol_decshr)
     
     # Export data as a csv
