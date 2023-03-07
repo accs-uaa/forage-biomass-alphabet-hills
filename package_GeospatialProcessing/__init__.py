@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Initialization for Geospatial Processing Module
 # Author: Timm Nawrocki
-# Last Updated: 2023-02-28
+# Last Updated: 2023-03-06
 # Usage: Individual functions have varying requirements. All functions that use arcpy must be executed in an ArcGIS Pro Python 3.6+ distribution.
 # Description: This initialization file imports modules in the package so that the contents are accessible.
 # ---------------------------------------------------------------------------
@@ -32,6 +32,7 @@ from package_GeospatialProcessing.mergeSegmentationImagery import merge_segmenta
 from package_GeospatialProcessing.normalizedMetrics import normalized_metrics
 from package_GeospatialProcessing.parseRasterBand import parse_raster_band
 from package_GeospatialProcessing.postprocessCategoricalRaster import postprocess_categorical_raster
+from package_GeospatialProcessing.postprocessContinuousRaster import postprocess_continuous_raster
 from package_GeospatialProcessing.postprocessSegments import postprocess_segments
 from package_GeospatialProcessing.predictionsToRaster import predictions_to_raster
 from package_GeospatialProcessing.probabilisticSiteSelection import probabilistic_site_selection

@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Assign existing vegetation type
 # Author: Timm Nawrocki
-# Last Updated: 2023-02-28
+# Last Updated: 2023-03-03
 # Usage: Must be executed in an Anaconda Python 3.9+ distribution.
 # Description: "Assign existing vegetation type" assigns a vegetation type label from physiography and foliar cover.
 # ---------------------------------------------------------------------------
@@ -55,12 +55,11 @@ predictor_all = ['aspect', 'elevation', 'exposure', 'heat_load', 'position', 'ra
 class_values = {'barren': 1,
                 'sparsely vegetated': 2,
                 'water': 3,
-                'balsalm poplar floodplain (white spruce)': 3,
-                'white spruce floodplain': 4,
-                'alder - willow floodplain': 5,
-                'boreal herbaceous floodplain, mesic': 6,
+                'balsam poplar floodplain (white spruce)': 4,
+                'white spruce floodplain': 5,
+                'alder - willow floodplain': 6,
                 'black spruce - Alaska birch - Sphagnum': 7,
-                'black spruce, mesic (inactive floodplain)': 8,
+                'black spruce, mesic': 8,
                 'black spruce, wet': 9,
                 'white spruce - alder': 10,
                 'white spruce - birch shrub': 11,
@@ -73,8 +72,9 @@ class_values = {'barren': 1,
                 'birch shrub - willow, wet': 18,
                 'montane Dryas-ericaceous dwarf shrub, acidic': 19,
                 'boreal sedge meadow, wet': 20,
-                'boreal/boreal-montane herbaceous': 21,
-                'unclassified': 22
+                'boreal montane herbaceous': 21,
+                'boreal herbaceous': 22,
+                'unclassified': 23
                 }
 
 
@@ -111,7 +111,10 @@ def evt_key(surface, elevation, fol_alnus, fol_betshr, fol_bettre, fol_dectre, f
         if total_cover < 20:
             evt_class = 'barren'
         elif herbaceous_cover >= 30:
-            evt_class = 'boreal/boreal-montane herbaceous'
+            if elevation >= 900:
+                evt_class = 'boreal montane herbaceous'
+            else:
+                evt_class = 'boreal herbaceous'
         else:
             evt_class = 'sparsely vegetated'
     # Define water
@@ -125,12 +128,15 @@ def evt_key(surface, elevation, fol_alnus, fol_betshr, fol_bettre, fol_dectre, f
         # Define forested floodplains
         if tree_cover >= 15:
             if deciduous_ratio > 0.75:
-                evt_class = 'balsalm poplar floodplain (white spruce)'
+                evt_class = 'balsam poplar floodplain (white spruce)'
             elif deciduous_ratio <= 0.75:
                 if picea_ratio <= 0.6 and (wet_indicator >= 15 or fol_erivag >= 10):
-                    evt_class = 'black spruce, wet'
+                    if wet_indicator >= 18 or fol_erivag >= 12:
+                        evt_class = 'black spruce, wet'
+                    else:
+                        evt_class = 'black spruce, mesic'
                 elif picea_ratio <= 0.4:
-                    evt_class = 'black spruce, mesic (inactive floodplain)'
+                    evt_class = 'black spruce, mesic'
                 else:
                     evt_class = 'white spruce floodplain'
         # Define non-forested floodplain types
@@ -146,17 +152,28 @@ def evt_key(surface, elevation, fol_alnus, fol_betshr, fol_bettre, fol_dectre, f
             # Define floodplain herbaceous types
             elif fol_wetsed >= 10:
                 evt_class = 'boreal sedge meadow, wet'
+            elif lowtall_shrub >= 20:
+                if fol_alnus >= 10:
+                    evt_class = 'alder - willow floodplain'
+                else:
+                    if wet_indicator >= 15:
+                        evt_class = 'birch shrub - willow, wet'
+                    else:
+                        evt_class = 'birch shrub - willow, mesic'
             elif herbaceous_cover >= 20:
-                evt_class = 'boreal herbaceous floodplain, mesic'
+                evt_class = 'boreal herbaceous'
             else:
                 evt_class = 'unclassified'
     #### DEFINE RIPARIAN TYPES
     elif surface == 4:
         if picea_cover >= 15:
             if picea_ratio <= 0.6 and (wet_indicator >= 15 or fol_erivag >= 10):
-                evt_class = 'black spruce, wet'
+                if wet_indicator >= 18 or fol_erivag >= 12:
+                    evt_class = 'black spruce, wet'
+                else:
+                    evt_class = 'black spruce, mesic'
             elif picea_ratio <= 0.4:
-                evt_class = 'black spruce, mesic (inactive floodplain)'
+                evt_class = 'black spruce, mesic'
             elif 0.6 > picea_ratio > 0.4:
                 evt_class = 'mixed spruce (- Alaska birch)'
             elif picea_ratio >= 0.6:
@@ -180,8 +197,16 @@ def evt_key(surface, elevation, fol_alnus, fol_betshr, fol_bettre, fol_dectre, f
                 # Define wetland sedge types
                 if fol_wetsed >= 10:
                     evt_class = 'boreal sedge meadow, wet'
+                elif lowtall_shrub >= 20:
+                    if fol_alnus >= 10:
+                        evt_class = 'alder - willow'
+                    else:
+                        evt_class = 'birch shrub - willow, wet'
                 elif herbaceous_cover >= 20:
-                    evt_class = 'boreal/boreal-montane herbaceous'
+                    if elevation >= 900:
+                        evt_class = 'boreal montane herbaceous'
+                    else:
+                        evt_class = 'boreal herbaceous'
                 else:
                     evt_class = 'sparsely vegetated'
     #### DEFINE NON-FORESTED DRAINAGE TYPES
@@ -197,7 +222,10 @@ def evt_key(surface, elevation, fol_alnus, fol_betshr, fol_bettre, fol_dectre, f
             if fol_wetsed >= 10:
                 evt_class = 'boreal sedge meadow, wet'
             elif herbaceous_cover >= 20:
-                evt_class = 'boreal/boreal-montane herbaceous'
+                if elevation >= 900:
+                    evt_class = 'boreal montane herbaceous'
+                else:
+                    evt_class = 'boreal herbaceous'
             else:
                 evt_class = 'unclassified'
     #### DEFINE UPLAND AND LOWLAND TYPES
@@ -222,9 +250,12 @@ def evt_key(surface, elevation, fol_alnus, fol_betshr, fol_bettre, fol_dectre, f
             # Define coniferous forest types
             else:
                 if picea_ratio <= 0.6 and (wet_indicator >= 15 or fol_erivag >= 10):
-                    evt_class = 'black spruce, wet'
+                    if wet_indicator >= 18 or fol_erivag >= 12:
+                        evt_class = 'black spruce, wet'
+                    else:
+                        evt_class = 'black spruce, mesic'
                 elif picea_ratio <= 0.4:
-                    evt_class = 'black spruce, mesic (inactive floodplain)'
+                    evt_class = 'black spruce, mesic'
                 elif 0.6 > picea_ratio > 0.4:
                     evt_class = 'mixed spruce (- Alaska birch)'
                 elif picea_ratio >= 0.6:
@@ -250,7 +281,7 @@ def evt_key(surface, elevation, fol_alnus, fol_betshr, fol_bettre, fol_dectre, f
                     # Define montane types
                     elif elevation > 1040:
                         if herbaceous_cover >= 25:
-                            evt_class = 'boreal/boreal-montane herbaceous'
+                            evt_class = 'boreal montane herbaceous'
                         elif lowtall_shrub >= 35:
                             evt_class = 'birch shrub - willow, mesic'
                         else:
@@ -266,10 +297,13 @@ def evt_key(surface, elevation, fol_alnus, fol_betshr, fol_bettre, fol_dectre, f
                 if fol_wetsed >= 10:
                     evt_class = 'boreal sedge meadow, wet'
                 elif herbaceous_cover >= 20:
-                    evt_class = 'boreal/boreal-montane herbaceous'
+                    if elevation >= 900:
+                        evt_class = 'boreal montane herbaceous'
+                    else:
+                        evt_class = 'boreal herbaceous'
                 else:
                     if elevation > 1040:
-                        evt_class = 'boreal/boreal-montane herbaceous'
+                        evt_class = 'boreal montane herbaceous'
                     else:
                         evt_class = 'unclassified'
     else:

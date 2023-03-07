@@ -15,7 +15,7 @@ def postprocess_categorical_raster(**kwargs):
             'water_value' -- integer value to use for water
             'attribute_dictionary' -- a dictionary of name and value pairs for the map schema
             'work_geodatabase' -- a geodatabase to store temporary results
-            'input_array' -- an array containing the area raster (must be first), the predicted raster, the segments feature class, and the rivers raster
+            'input_array' -- an array containing the area raster (must be first), the predicted raster, the river raster, and the aspen raster
             'output_array' -- an array containing the output raster
     Returned Value: Returns a raster to disk
     Preconditions: requires a predicted categorical raster
@@ -38,12 +38,15 @@ def postprocess_categorical_raster(**kwargs):
     # Parse key word argument inputs
     minimum_count = kwargs['minimum_count']
     water_value = kwargs['water_value']
+    aspen_value = kwargs['aspen_value']
+    replace_value = kwargs['replace_value']
     null_statement = kwargs['null_statement']
     attribute_dictionary = kwargs['attribute_dictionary']
     work_geodatabase = kwargs['work_geodatabase']
     area_raster = kwargs['input_array'][0]
     input_raster = kwargs['input_array'][1]
     river_raster = kwargs['input_array'][2]
+    aspen_raster = kwargs['input_array'][3]
     output_raster = kwargs['output_array'][0]
 
     # Define intermediate datasets
@@ -73,9 +76,12 @@ def postprocess_categorical_raster(**kwargs):
     # Generalize raster results
     print(f'\tGeneralizing predicted raster...')
     iteration_start = time.time()
+    # Replace aspen values
+    aspen_remove = Con(Raster(input_raster) == aspen_value, replace_value, Raster(input_raster))
+    aspen_replace = Con(Raster(aspen_raster) == 1, aspen_value, aspen_remove)
     # Copy raster to integer
     print('\t\tConverting input raster to integers...')
-    arcpy.management.CopyRaster(input_raster,
+    arcpy.management.CopyRaster(aspen_replace,
                                 input_integer,
                                 '',
                                 '',
@@ -137,10 +143,15 @@ def postprocess_categorical_raster(**kwargs):
     criteria = f'COUNT > {minimum_count}'
     raster_mask_1 = ExtractByAttributes(raster_regions,
                                         criteria)
-    # Set null for selected values
-    raster_mask_2 = SetNull(raster_majority, raster_mask_1, null_statement)
-    # Set null for water
-    raster_mask = SetNull(raster_mask_2 == 0, raster_mask_2)
+    # Execute null statement if it exists
+    if null_statement != '':
+        # Set null for selected values
+        raster_mask_2 = SetNull(raster_majority, raster_mask_1, null_statement)
+        # Set null for water
+        raster_mask = SetNull(raster_mask_2 == 0, raster_mask_2)
+    else:
+        # Set null for water
+        raster_mask = SetNull(raster_mask_1 == 0, raster_mask_1)
     # End timing
     iteration_end = time.time()
     iteration_elapsed = int(iteration_end - iteration_start)
@@ -167,7 +178,7 @@ def postprocess_categorical_raster(**kwargs):
         f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
     print('\t----------')
 
-    # Add missing values for water
+    # Add missing values
     print(f'\tAdding missing values...')
     iteration_start = time.time()
     # Add rivers

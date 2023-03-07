@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Post-process surficial features
 # Author: Timm Nawrocki
-# Last Updated: 2023-02-22
+# Last Updated: 2023-03-03
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Post-process surficial features" processes the predicted raster into the final deliverable.
 # ---------------------------------------------------------------------------
@@ -32,6 +32,7 @@ study_raster = os.path.join(project_folder, 'Data_Input/Alphabet_StudyArea.tif')
 input_raster = os.path.join(project_folder, 'Data_Output/output_rasters',
                             round_date, 'surficial_features', 'Alphabet_SurficialFeatures.tif')
 river_raster = os.path.join(project_folder, 'Data_Input/hydrography/processed/Rivers.tif')
+aspen_raster = os.path.join(project_folder, 'Data_Input/ancillary/Alphabet_Aspen.tif')
 
 # Define output raster
 output_raster = os.path.join(project_folder, 'Data_Output/data_package', version_number, 'surficial_features',
@@ -50,9 +51,12 @@ class_values = {'barren': 1,
 # Create key word arguments
 kwargs_process = {'minimum_count': 505,
                   'water_value': 6,
+                  'aspen_value': 8,
+                  'replace_value': 7,
+                  'null_statement': '',
                   'attribute_dictionary': class_values,
                   'work_geodatabase': work_geodatabase,
-                  'input_array': [study_raster, input_raster, river_raster],
+                  'input_array': [study_raster, input_raster, river_raster, aspen_raster],
                   'output_array': [output_raster]
                   }
 

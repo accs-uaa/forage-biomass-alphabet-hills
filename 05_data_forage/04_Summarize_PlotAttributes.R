@@ -164,7 +164,7 @@ bite_data = bite_original %>%
          bite_mass_medium = medium,
          bite_mass_large = large_strip)
 
-# Calculate per plot wet mass summary
+# Calculate per plot dry mass summary
 plot_mass = plot_bites %>%
   # Join bite mass data
   left_join(bite_data, by = 'taxon_accepted_code') %>%
@@ -172,8 +172,8 @@ plot_mass = plot_bites %>%
   mutate(mass_small_g_per_m2 = plot_small * bite_mass_small) %>%
   mutate(mass_medium_g_per_m2 = plot_medium * bite_mass_medium) %>%
   mutate(mass_large_g_per_m2 = plot_large * bite_mass_large) %>%
-  dplyr::select(site_code, taxon_accepted_code, cover_percent, height,
-                mass_small_g_per_m2, mass_medium_g_per_m2, mass_large_g_per_m2)
+  select(site_code, taxon_accepted_code, cover_percent, height,
+         mass_small_g_per_m2, mass_medium_g_per_m2, mass_large_g_per_m2)
 
 # Export output as csv file
 write.csv(plot_mass, file = output_file, fileEncoding = 'UTF-8', row.names = FALSE)

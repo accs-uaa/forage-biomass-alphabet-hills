@@ -2,9 +2,9 @@
 # ---------------------------------------------------------------------------
 # Train and test forage regressor
 # Author: Timm Nawrocki
-# Last Updated: 2022-10-28
+# Last Updated: 2023-03-03
 # Usage: Must be executed in an Anaconda Python 3.9+ distribution.
-# Description: "Train and test forage regressor " trains a Bayesian ridge model to predict total forage biomass from a set of training samples. This script runs the model train and test steps to output a trained regressor file and predicted data set.
+# Description: "Train and test forage regressor" trains a Bayesian ridge model to predict total forage biomass from a set of training samples. This script runs the model train and test steps to output a trained regressor file and predicted data set.
 # ---------------------------------------------------------------------------
 
 # Import packages
@@ -25,10 +25,10 @@ from sklearn.model_selection import LeaveOneGroupOut
 round_date = 'round_20220607'
 
 # Define target group
-target = 'betshr'
+target = 'salix'
 
 # Select predictors
-predictor_set = ['fol_betshr', 'fol_erivag', 'fol_picea', 'fol_salshr', 'fol_vacvit', 'fol_wetsed', 'physio_aspen', 'physio_riverine']
+predictor_set = ['fol_alnus', 'fol_picea', 'fol_salshr', 'fol_vaculi', 'fol_wetsed', 'physio_aspen', 'physio_drainage', 'physio_riverine']
 
 #### SET UP DIRECTORIES, FILES, AND FIELDS
 
@@ -43,7 +43,7 @@ data_folder = os.path.join(drive,
 input_file = os.path.join(data_folder,
                           'Data_Input/forage/processed/',
                           f'train_{target}.csv')
-output_folder = os.path.join(data_folder, 'Data_Output/model_results', round_date, 'forage', target)
+output_folder = os.path.join(data_folder, 'Data_Output/model_results', round_date, 'forage_biomass', target)
 if not os.path.exists(output_folder):
     os.mkdir(output_folder)
 

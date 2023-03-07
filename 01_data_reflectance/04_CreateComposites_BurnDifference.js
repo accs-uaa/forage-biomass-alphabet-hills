@@ -30,7 +30,7 @@ var mask_clouds = function(image) {
   return image.updateMask(cloud_mask);
 };
 
-// Define a function for NDSI calculation.
+// Define a function for NBR calculation.
 var add_nbr = function(image) {
   //Compute the Normalized Burn Ratio (NBR).
   var nbr_calc = image.normalizedDifference(['B5', 'B7']).rename('NBR');
@@ -38,7 +38,7 @@ var add_nbr = function(image) {
   return image.addBands(nbr_calc);
 };
 
-// Import Landsat 8 TOA Reflectance (ortho-rectified).
+// Import Landsat 5 and 7 TOA Reflectance (ortho-rectified).
 var l7_TOA = ee.ImageCollection("LANDSAT/LE07/C02/T1_TOA")
   .filterBounds(area_feature);
 var l5_TOA = ee.ImageCollection("LANDSAT/LT05/C02/T1_TOA")

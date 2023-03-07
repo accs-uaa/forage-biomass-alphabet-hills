@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Predict forage biomass to points
 # Author: Timm Nawrocki
-# Last Updated: 2022-10-28
+# Last Updated: 2023-03-04
 # Usage: Must be executed in an Anaconda Python 3.9+ distribution.
 # Description: "Predict forage biomass to points" predicts a random forest model to a set of grid csv files containing extracted covariate values to produce a set of output predictions with mean and standard deviation. The script must be run on a machine that can support 4 cores.
 # ---------------------------------------------------------------------------
@@ -32,8 +32,8 @@ data_folder = os.path.join(drive,
                            root_folder,
                            'Projects/WildlifeEcology/Moose_AlphabetHills/Data')
 input_folder = os.path.join(data_folder, 'Data_Output/predicted_tables', round_date, 'additional')
-model_folder = os.path.join(data_folder, 'Data_Output/model_results', round_date, 'forage', target)
-output_folder = os.path.join(data_folder, 'Data_Output/predicted_tables', round_date, 'forage', target)
+model_folder = os.path.join(data_folder, 'Data_Output/model_results', round_date, 'forage_biomass', target)
+output_folder = os.path.join(data_folder, 'Data_Output/predicted_tables', round_date, 'forage_biomass', target)
 if not os.path.exists(output_folder):
     os.mkdir(output_folder)
 

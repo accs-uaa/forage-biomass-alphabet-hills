@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Summarize per species bite masses
 # Author: Timm Nawrocki
-# Last Updated: 2022-10-25
+# Last Updated: 2022-03-03
 # Usage: Should be executed in R 4.1.0+.
 # Description: "Summarize per species bite masses" transforms bite counts into mean and standard deviation per bite mass.
 # ---------------------------------------------------------------------------
@@ -30,6 +30,9 @@ plots_folder = paste(forage_folder,
 input_file = paste(field_folder,
                    '2021_AlphabetHills_Data.xlsx',
                    sep = '/')
+mass_file = paste(field_folder,
+                  '2021_AlphabetHills_DryMass.xlsx',
+                  sep = '/')
 
 # Define output dataset
 output_file = paste(forage_folder,
@@ -64,43 +67,27 @@ database_connection = connect_database_postgresql(authentication)
 query_taxon = 'SELECT * FROM taxon_all'
 taxon_data = as_tibble(dbGetQuery(database_connection, query_taxon))
 
-# Calculate wet sample mass
-mass_data = read_xlsx(input_file, sheet = 'Mass') %>%
+# Calculate per bite sample dry mass
+mass_data = read_xlsx(mass_file, sheet = 'dry_mass') %>%
   # Join accepted names to codes
   left_join(taxon_data, by = c('code' = 'taxon_code')) %>%
-  dplyr::select(-code, -taxon_name, -taxon_author_id, -taxon_status_id) %>%
+  dplyr::select(-taxon_name, -taxon_author_id, -taxon_status_id) %>%
   left_join(taxon_data, by = c('taxon_accepted_code' = 'taxon_code')) %>%
-  # Rename site code
-  rename(site_code = site) %>%
-  # Parse sample mass
-  filter(wet_number > 0 &
-           total_weight != -999) %>%
   mutate(bite_size = case_when(bite_size == 'clip' ~ 'large_clip',
                                bite_size == 'strip' ~ 'large_strip',
                                bite_size == 'large' ~ 'large_strip',
                                TRUE ~ bite_size)) %>%
-  mutate(sample_weight = total_weight - bag_weight) %>%
-  dplyr::select(site_code, subplot, taxon_accepted_code, taxon_name, bite_size, wet_number, sample_weight)
-
-# Merge sample weights and bite counts for Betula shrubs
-betula_mass = mass_data %>%
-  filter(taxon_accepted_code == 'betgla' |
-           taxon_accepted_code == 'betnansexi') %>%
-  group_by(site_code, subplot, bite_size) %>%
-  summarize(wet_number = sum(wet_number),
-            sample_weight = sum(sample_weight)) %>%
-  mutate(taxon_accepted_code = 'betshr',
-         taxon_name = 'Betula shrubs')
-
-# Replace bite mass data with Betula shrub
-mass_data = mass_data %>%
-  filter(taxon_accepted_code != 'betgla' &
-           taxon_accepted_code != 'betnansexi')
-mass_data = rbind(mass_data, betula_mass)
+  select(sample_id, taxon_accepted_code, taxon_name, bite_size, dry_number, total_mass) %>%
+  mutate(taxon_accepted_code = case_when(taxon_accepted_code == 'betgla' ~ 'betshr',
+                                         taxon_accepted_code == 'betnansexi' ~ 'betshr',
+                                         TRUE ~ taxon_accepted_code)) %>%
+  mutate(taxon_name = case_when(taxon_accepted_code == 'betshr' ~ 'Betula shrubs',
+                                taxon_accepted_code == 'betshr' ~ 'Betula shrubs',
+                                TRUE ~ taxon_name))
 
 # Summarize mean bite mass per species and bite size
 output_data = mass_data %>%
-  mutate(bite_mass = sample_weight / wet_number) %>%
+  mutate(bite_mass = total_mass / dry_number) %>%
   group_by(taxon_accepted_code, taxon_name, bite_size) %>%
   summarize(bite_mass = mean(bite_mass)) %>%
   dplyr::select(taxon_accepted_code, taxon_name, bite_size, bite_mass)
@@ -141,8 +128,8 @@ for (i in 1:nrow(species_list)) {
   species_data = mass_data %>%
     filter(taxon_accepted_code == code_str)
   
-  # Plot wet weight against bite number
-  biomass_plot = ggplot(data = species_data, aes(x = wet_number, y = sample_weight)) +
+  # Plot dry mass against bite number
+  biomass_plot = ggplot(data = species_data, aes(x = dry_number, y = total_mass)) +
     theme_bw() +
     font +
     geom_point(alpha = 0.7,

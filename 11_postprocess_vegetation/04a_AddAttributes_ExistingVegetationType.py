@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Add attributes for existing vegetation type
 # Author: Timm Nawrocki
-# Last Updated: 2023-02-28
+# Last Updated: 2023-03-03
 # Usage: Must be executed in an ArcGIS Pro Python 3.7 installation.
 # Description: "Add attributes for existing vegetation type" adds attributes to the predicted raster.
 # ---------------------------------------------------------------------------
@@ -40,12 +40,11 @@ output_raster = os.path.join(project_folder, 'Data_Output/data_package',
 class_values = {'barren': 1,
                 'sparsely vegetated': 2,
                 'water': 3,
-                'balsalm poplar floodplain (white spruce)': 3,
-                'white spruce floodplain': 4,
-                'alder - willow floodplain': 5,
-                'boreal herbaceous floodplain, mesic': 6,
+                'balsam poplar floodplain (white spruce)': 4,
+                'white spruce floodplain': 5,
+                'alder - willow floodplain': 6,
                 'black spruce - Alaska birch - Sphagnum': 7,
-                'black spruce, mesic (inactive floodplain)': 8,
+                'black spruce, mesic': 8,
                 'black spruce, wet': 9,
                 'white spruce - alder': 10,
                 'white spruce - birch shrub': 11,
@@ -58,8 +57,9 @@ class_values = {'barren': 1,
                 'birch shrub - willow, wet': 18,
                 'montane Dryas-ericaceous dwarf shrub, acidic': 19,
                 'boreal sedge meadow, wet': 20,
-                'boreal/boreal-montane herbaceous': 21,
-                'unclassified': 22
+                'boreal montane herbaceous': 21,
+                'boreal herbaceous': 22,
+                'unclassified': 23
                 }
 
 # Create key word arguments
