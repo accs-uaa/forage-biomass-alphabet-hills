@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Summarize available biomass per plot
 # Author: Timm Nawrocki
-# Last Updated: 2022-10-25
+# Last Updated: 2023-04-18
 # Usage: Should be executed in R 4.1.0+.
 # Description: "Summarize available biomass per plot" summarizes the plot level biomass available to moose per species and bite size using the generalized relationships between bite number and mass.
 # ---------------------------------------------------------------------------
@@ -24,7 +24,7 @@ forage_folder = paste(project_folder,
                       sep = '/')
 
 # Define input datasets
-subplot_file = paste(field_folder,
+field_file = paste(field_folder,
                    '2021_AlphabetHills_Data.xlsx',
                    sep = '/')
 bite_file = paste(forage_folder,
@@ -45,7 +45,11 @@ site_file = paste(forage_folder,
                   sep = '/')
 
 # Define output dataset
-output_file = paste(forage_folder,
+subplot_file = paste(forage_folder,
+                     'processed',
+                     'subplot_mass.csv',
+                     sep = '/')
+plot_file = paste(forage_folder,
                     'processed',
                     'plot_mass.csv',
                     sep = '/')
@@ -79,82 +83,11 @@ query_taxon = 'SELECT * FROM taxon_all'
 taxon_data = as_tibble(dbGetQuery(database_connection, query_taxon))
 
 # Read input data
-subplot_original = read_xlsx(subplot_file, sheet = 'Subplots')
+subplot_original = read_xlsx(field_file, sheet = 'Subplots')
 bite_original = read.csv(bite_file)
 site_data = read.csv(site_file)
 site_visit_data = read.csv(site_visit_file)
 cover_original = read.csv(cover_file)
-
-# Calculate subplot bite summary
-subplot_data = subplot_original %>%
-  rename(site_code = site) %>%
-  mutate(site_code = paste('ALPH', site_code, sep = '')) %>%
-  mutate(large = large_strip + large_clip) %>%
-  group_by(site_code, code) %>%
-  summarize(cover_sb = mean(cover),
-            height = case_when(is.na(sort(height, TRUE)[4]) ~ max(height),
-                               TRUE ~ sort(height, TRUE)[2]),
-            small = mean(small),
-            medium = mean(medium),
-            large = mean(large)) %>%
-  mutate(area_sb = (cover_sb/100) * 0.25) %>%
-  # Join accepted codes to codes
-  left_join(taxon_data, by = c('code' = 'taxon_code')) %>%
-  dplyr::select(site_code, taxon_accepted_code, cover_sb, area_sb, height,
-                small, medium, large)
-
-# Merge Betula shrub subplot data
-betula_subplot = subplot_data %>%
-  filter(taxon_accepted_code == 'betgla' |
-           taxon_accepted_code == 'betnansexi') %>%
-  group_by(site_code) %>%
-  summarize(cover_sb = sum(cover_sb),
-            area_sb = sum(area_sb),
-            height = max(height),
-            small = sum(small),
-            medium = sum(medium),
-            large = sum(large)) %>%
-  mutate(taxon_accepted_code = 'betshr')
-
-# Replace subplot data with Betula shrub summary
-subplot_data = subplot_data %>%
-  filter(taxon_accepted_code != 'betgla' &
-           taxon_accepted_code != 'betnansexi')
-subplot_data = rbind(subplot_data, betula_subplot)
-
-# Prepare cover data
-cover_data = cover_original %>%
-  filter(dead_status != 'TRUE') %>%
-  # Join accepted codes to name_adjudicated
-  left_join(taxon_data, by = c('name_adjudicated' = 'taxon_name')) %>%
-  # Join site visit data
-  left_join(site_visit_data, by = 'site_visit_id') %>%
-  dplyr::select(site_code, taxon_accepted_code, cover_percent)
-
-# Merge Betula shrub cover data
-betula_cover = cover_data %>%
-  filter(taxon_accepted_code == 'betgla' |
-         taxon_accepted_code == 'betnansexi') %>%
-  group_by(site_code) %>%
-  summarize(cover_percent = sum(cover_percent)) %>%
-  mutate(taxon_accepted_code = 'betshr')
-
-# Replace cover data with Betula shrub summary
-cover_data = cover_data %>%
-  filter(taxon_accepted_code != 'betgla' &
-           taxon_accepted_code != 'betnansexi')
-cover_data = rbind(cover_data, betula_cover)
-  
-# Join subplot data and cover data
-plot_bites = cover_data %>%
-  left_join(subplot_data, by = c('site_code', 'taxon_accepted_code')) %>%
-  # Calculate plot attributes
-  mutate(area_pl = (cover_percent/100) * 490.87) %>%
-  mutate(plot_small = ((small/area_sb) * area_pl) / 490.87) %>%
-  mutate(plot_medium = ((medium/area_sb) * area_pl) / 490.87) %>%
-  mutate(plot_large = ((large/area_sb) * area_pl) / 490.87) %>%
-  select(site_code, taxon_accepted_code, cover_percent, height,
-         plot_small, plot_medium, plot_large)
 
 # Create wide form bite mass data
 bite_data = bite_original %>%
@@ -162,18 +95,86 @@ bite_data = bite_original %>%
   dplyr::select(-taxon_name, -large_clip) %>%
   rename(bite_mass_small = small,
          bite_mass_medium = medium,
-         bite_mass_large = large_strip)
+         bite_mass_large = large_strip) %>%
+  select(-whole)
+bite_data = bite_data %>%
+  # Fill missing data for betken using betneo data
+  add_row(taxon_accepted_code = 'betken',
+          bite_mass_large = bite_data$bite_mass_large[[which(
+            bite_data$taxon_accepted_code == 'betneo')]],
+          bite_mass_medium = bite_data$bite_mass_medium[[which(
+            bite_data$taxon_accepted_code == 'betneo')]],
+          bite_mass_small = bite_data$bite_mass_small[[which(
+            bite_data$taxon_accepted_code == 'betneo')]]) %>%
+  # Fill missing data for salala using salgla data
+  mutate(bite_mass_large = case_when(taxon_accepted_code == 'salala' ~
+                                       bite_data$bite_mass_large[[which(
+                                         bite_data$taxon_accepted_code == 'salgla')]],
+                                     TRUE ~ bite_mass_large))
 
-# Calculate per plot dry mass summary
-plot_mass = plot_bites %>%
-  # Join bite mass data
+# Calculate subplot biomass summary
+subplot_data = subplot_original %>%
+  rename(site_code = site) %>%
+  mutate(taxon_accepted_code = case_when(code == 'betgla' ~ 'betshr',
+                                         code == 'betnansexi' ~ 'betshr',
+                                         code == 'betn×g' ~ 'betcfo',
+                                         TRUE ~ code)) %>%
+  mutate(site_code = paste('ALPH', site_code, sep = '')) %>%
+  mutate(large = large_strip + large_clip) %>%
+  # Calculate biomass per bite size
   left_join(bite_data, by = 'taxon_accepted_code') %>%
-  # Calculate bite mass per square meter
-  mutate(mass_small_g_per_m2 = plot_small * bite_mass_small) %>%
-  mutate(mass_medium_g_per_m2 = plot_medium * bite_mass_medium) %>%
-  mutate(mass_large_g_per_m2 = plot_large * bite_mass_large) %>%
-  select(site_code, taxon_accepted_code, cover_percent, height,
-         mass_small_g_per_m2, mass_medium_g_per_m2, mass_large_g_per_m2)
+  mutate(biomass_large = large * bite_mass_large) %>%
+  mutate(biomass_medium = medium * bite_mass_medium) %>%
+  mutate(biomass_small = small * bite_mass_small) %>%
+  mutate(biomass_total = biomass_large + biomass_medium + biomass_small) %>%
+  select(site_code, subplot, code, taxon_accepted_code, cover, height, biomass_total)
+  
+# Summarize subplot biomass
+subplot_summary = subplot_data %>%
+  group_by(site_code, taxon_accepted_code) %>%
+  summarize(cover_mean_sb = mean(cover),
+            height_max = case_when(is.na(sort(height, TRUE)[4]) ~ max(height),
+                               TRUE ~ sort(height, TRUE)[2]),
+            height_mean = mean(height),
+            biomass_mean_sb = mean(biomass_total),
+            subplot_n = n()) %>%
+  select(site_code, taxon_accepted_code, cover_mean_sb, height_max,
+         height_mean, biomass_mean_sb, subplot_n)
 
-# Export output as csv file
-write.csv(plot_mass, file = output_file, fileEncoding = 'UTF-8', row.names = FALSE)
+# Prepare cover data
+cover_data = cover_original %>%
+  filter(dead_status != 'TRUE') %>%
+  filter(name_adjudicated != 'Picea mariana' &
+           name_adjudicated != 'Picea glauca' &
+           name_adjudicated != 'Salix pseudomyrsinites') %>%
+  # Join accepted codes to name_adjudicated
+  left_join(taxon_data, by = c('name_adjudicated' = 'taxon_name')) %>%
+  # Join site visit data
+  left_join(site_visit_data, by = 'site_visit_id') %>%
+  rename(cover_pl = cover_percent) %>%
+  select(site_code, taxon_accepted_code, cover_pl)
+# Merge Betula shrub cover data
+betula_cover = cover_data %>%
+  filter(taxon_accepted_code == 'betgla' |
+         taxon_accepted_code == 'betnansexi') %>%
+  group_by(site_code) %>%
+  summarize(cover_pl = sum(cover_pl)) %>%
+  mutate(taxon_accepted_code = 'betshr')
+# Replace cover data with Betula shrub summary
+cover_data = cover_data %>%
+  filter(taxon_accepted_code != 'betgla' &
+           taxon_accepted_code != 'betnansexi')
+cover_data = rbind(cover_data, betula_cover)
+  
+# Calculate plot biomass density
+plot_mass = cover_data %>%
+  left_join(subplot_summary, by = c('site_code', 'taxon_accepted_code')) %>%
+  # Calculate plot biomass density
+  mutate(biomass_density_pl = ((biomass_mean_sb/(cover_mean_sb * 0.25))*(cover_pl * 490.87))/490.87) %>%
+  select(site_code, taxon_accepted_code, cover_pl, cover_mean_sb, height_max,
+         height_mean, biomass_mean_sb, biomass_density_pl, subplot_n) %>%
+  filter(!is.na(subplot_n))
+
+# Export outputs as csv files
+write.csv(subplot_data, file = subplot_file, fileEncoding = 'UTF-8', row.names = FALSE)
+write.csv(plot_mass, file = plot_file, fileEncoding = 'UTF-8', row.names = FALSE)

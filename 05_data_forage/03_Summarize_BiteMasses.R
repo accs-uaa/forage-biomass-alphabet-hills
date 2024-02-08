@@ -140,8 +140,8 @@ for (i in 1:nrow(species_list)) {
     theme(panel.spacing = unit(2, 'lines')) +
     labs(x = paste('Number of bites for ', name_str, sep = ''), y = 'Sample mass (grams)') +
     coord_fixed(ratio = 1) +
-    scale_x_continuous(breaks=seq(0, 60, by = 10), limits = c(0, 60), expand = c(0.01, 0)) +
-    scale_y_continuous(breaks=seq(0, 60, by = 10), limits = c(0, 60), expand = c(0.02, 0))
+    scale_x_continuous(breaks=seq(0, 20, by = 5), limits = c(0, 20), expand = c(0.01, 0)) +
+    scale_y_continuous(breaks=seq(0, 20, by = 5), limits = c(0, 20), expand = c(0.02, 0))
   
   ggsave(output_plot,
          plot = biomass_plot,
