@@ -52,7 +52,7 @@ def probabilistic_site_selection(**kwargs):
     arcpy.env.cellSize = "MINOF"
 
     # Set random seed
-    arcpy.env.randomGenerator = '314 ACM599'
+    arcpy.env.randomGenerator = '314'
 
     # Define intermediate datasets
     intermediate_points = os.path.join(work_geodatabase, 'intermediate_points')
